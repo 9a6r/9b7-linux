@@ -34,7 +34,7 @@ live_source=$(findmnt -nro SOURCE /run/archiso/bootmnt)
 if [[ -b $live_source ]] && lsblk -snrpo NAME "$live_source" | grep -Fxq "$disk"; then
     echo 'Target contains the live boot medium; refusing.' >&2; exit 1
 fi
-required_bytes=$(( $(du -sx --block-size=1 "$source_root" | cut -f1) + 20*1024*1024*1024 ))
+required_bytes=$(( $(du -sx --apparent-size --block-size=1 "$source_root" | cut -f1) + 20*1024*1024*1024 ))
 disk_bytes=$(blockdev --getsize64 "$disk")
 (( disk_bytes >= required_bytes )) || { echo 'Target needs the installed image size plus at least 20 GiB for working data.' >&2; exit 1; }
 cat <<PLAN

@@ -90,11 +90,10 @@ MENU LABEL 9b7 Linux - Compatibility / VirtualBox (XFCE)
 LINUX /%INSTALL_DIR%/boot/%ARCH%/vmlinuz-linux
 INITRD /%INSTALL_DIR%/boot/%ARCH%/initramfs-linux.img
 APPEND archisobasedir=%INSTALL_DIR% archisosearchuuid=%ARCHISO_UUID% 9b7.safe=1 cow_spacesize=4G %KERNEL_PARAMS%
-LABEL existing
-MENU LABEL Boot existing operating system
-COM32 chain.c32
-APPEND hd0 0
 BOOT
+sed -i 's/^DEFAULT arch$/DEFAULT 9b7/; s/^TIMEOUT .*/TIMEOUT 80/' "$profile/syslinux/archiso_sys.cfg"
+sed -i 's/^MENU TITLE .*/MENU TITLE 9b7 Linux - BIS Workspace/' "$profile/syslinux/archiso_head.cfg"
+rsvg-convert -w 640 -h 480 -o "$profile/syslinux/splash.png" "$project/assets/wallpaper.svg"
 mkdir -p "$profile/efiboot/loader/entries"
 rm -f "$profile/efiboot/loader/entries/"*.conf
 cat > "$profile/efiboot/loader/entries/01-9b7.conf" <<'BOOT'
