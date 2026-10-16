@@ -31,6 +31,8 @@ python3 scripts/bundle-offline.py
 docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-iso.sh full
 ```
 
+صور Docker تُضغط مباشرة عند التصدير، ونموذج Qwen يُجلب من manifest مثبت وتُراجع بصمات كل ملف. يمكن إضافة `--remove-exported` إلى bundle-offline على **Docker مخصص للبناء فقط** لحذف الصور بعد تصديرها؛ لا تستخدمه على مخزن خدماتك اليومية. يحتاج السكربت Python مع PyYAML وDocker Compose وgzip.
+
 النتيجة في `out/`: ISO، SHA256، قائمة حزم، ومرجع الكود. حزم Arch تُتحقق بتوقيعاتها؛ الحزم الإضافية بمراجع AUR مثبتة، checksums مصادر، وتوقيع مفتاح بناء محلي. المفتاح الخاص يبقى في `cache/signing` ولا يدخل Git أو ISO.
 
 لبناء نسخة اختبار دون صور الخدمات:
@@ -68,3 +70,7 @@ docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-i
 ## خطوات قبول الإصدار
 
 شغّل اختبارات الكود، ابن full، تحقق من SHA256، اختبر BIOS وUEFI وVirtualBox، اختبر الإقلاع الثاني بعد التثبيت، ثم افصل الإنترنت واختبر كل خدمة منفردة. سجّل النتائج في `VALIDATION.md`. عندها فقط أنشئ Release باسم الإصدار وارفع الـISO وSHA256 وقائمة الحزم وملاحظات التراخيص.
+
+## مساحة عمل منفصلة (متقدم)
+
+لبيئة اختبار ذات RAM وفيرة وقرص صغير، يمكن تحديد `NINEB7_WORK_DIR=/path/to/work` على filesystem منفصل، و`NINEB7_BIND_OFFLINE=1` لربط الأرشيفات read-only داخل profile بدلاً من نسخها مرتين. يشترط السكربت مساحة عمل تكفي نسختين من الحزمة زائد 13GB، ومخرجات تكفي الحزمة زائد 5GB. استخدام tmpfs يحتاج RAM فعلية تكفي هذه المساحة مع بقية النظام؛ لا تستخدم هذا الأسلوب على لاب 8GB. هذا مسار متقدم قيد اختبار البناء، وليس تغييرًا لمتطلبات جهاز المستخدم.

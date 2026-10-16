@@ -12,10 +12,14 @@ Updated 2026-10-16. These results concern this development environment, not an I
 | Metabase 0.64.1 | PASS | PostgreSQL metadata initialized, health=ok, actual sample query `SELECT COUNT(*) FROM ORDERS` returned 18760 |
 | Superset 6.1.0 | PASS | Initialization, authenticated login/API, stop/start with retained account |
 | Odoo 18 | PASS | Created real database and authenticated user 9b7; fixed config readability |
-| ERPNext | IN PROGRESS | Runtime initialization not yet verified |
+| ERPNext | BLOCKED IN NESTED RUNTIME | Images pulled; cloud cgroup v2 prevents nested container start. Validate in the booted VM |
 | Cassandra / PostgreSQL / Redis console | PASS | Actual driver queries; revenue 39100 checked through PostgreSQL and Redis; Cassandra cluster query succeeded |
 | Local Ollama inference | PENDING | Agent orchestration tested with controlled generator; actual model inference is not yet verified |
-| Arch package installation / ISO generation | IN PROGRESS | Mirror access now returns HTTP 200; builder setup resumed. No ISO yet |
+| Extra Arch packages | PASS | Signed VSCodium, Obsidian, Burp, geomet, Cassandra 3.30.1-2 built; real Cassandra import on Arch/Python 3.14 |
+| Native archiso profile | PASS | Generated with installed releng and librsvg; ISO build/boot still pending |
+| Offline archive mechanism | PASS | Compressed Docker save/load, SHA256 and image ID, then real run with --pull never |
+| Model download integrity | PASS | Pinned official Qwen manifest; all blob sizes and SHA256 verified; inference pending |
+| ISO generation | PENDING | No ISO yet |
 | BIOS + UEFI live boot | NOT RUN | Requires generated ISO |
 | VirtualBox + laptop boot | NOT RUN | Requires generated ISO and target hardware |
 | Whole-disk installation + second boot | NOT RUN | Installer is not certified; first test must use a disposable virtual disk |

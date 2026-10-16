@@ -66,3 +66,15 @@
 - الحزم الإضافية: geomet بُني وتوقّع؛ Cassandra driver كشف dependency tomli فأُضيفت. أُصلح تهيئة pacman-key ومرور proxy عبر sudo داخل حاوية البناء. البناء مستمر.
 - حُفظت install_script وstart_skill في مسودة البيئة؛ الإعداد الجديد قابل لإعادة التنفيذ عبر scripts/setup-dev.sh. نشر البيئة منفصل ولم يُدّع إنجازه.
 - ERPNext قيد الاختبار. لا يوجد ISO بعد.
+
+## 2026-10-16 — المرحلة 5
+
+- اكتمل بناء وتوقيع VSCodium وObsidian وBurp Suite وgeomet وCassandra driver. أُصلحت اعتماديات Cassandra ونجح import فعلي في Arch/Python 3.14 للحزمة 3.30.1-2.
+- نجح توليد profile أصلي كامل إلى work/profile-native-check-2 بعد معالجة git safe.directory للأوامر داخل الحاوية فقط.
+- اختبار offline roundtrip فعلي نجح: docker save مضغوط، إزالة local tag، تحقق checksum، docker load ثم تشغيل مع --pull never.
+- ثُبت manifest الرسمي لـQwen 1.5B وتحققت كل blob ببصمتها وحجمها؛ archive النموذج جاهز. الاستدلال الفعلي ما زال غير مختبر.
+- تجميع صور الخدمات المضغوطة جارٍ داخل Docker مخصص overlay2 على tmpfs؛ تصدير كل صورة ثم إزالتها يحدّ الاستهلاك. Docker الخارجي vfs غير مناسب للمساحة المتاحة.
+- سحب ERPNext نجح داخل Docker المتداخل لكن التشغيل اصطدم بـcgroup v2 domain threaded الخاص بالسحابة؛ لا تسجل نجاح ERPNext قبل تشغيله فعليًا داخل VM.
+- أُضيف مسار بناء محدود القرص بقرص عمل منفصل NINEB7_WORK_DIR وNINEB7_BIND_OFFLINE=1، مع فحص المساحة وفصل مخرجات ISO. لم يُختبر build بعد. المسار الافتراضي ذو 100GB ما زال الموصى به.
+- الاختبارات الـ15، ShellCheck، تكوين الخدمات السبعة واختبار archive المضغوط ناجحة.
+- الخطوة التالية: إكمال scripts/bundle-offline.py --remove-exported والتحقق من الحزمة، ثم scripts/build-iso.sh full في Arch builder؛ سجل الإقلاع قبل أي ادعاء بجهوزية ISO.

@@ -112,8 +112,16 @@ if [[ $edition == full ]]; then
     [[ -s "$project/cache/offline/manifest.json" && -s "$project/cache/offline/models.tar" ]] || {
         echo 'Full edition requires scripts/bundle-offline.py first; refusing a partial full ISO' >&2; exit 1;
     }
-    cp -a "$project/cache/offline" "$root/opt/9b7/"
+    python "$project/scripts/verify-offline.py" "$project/cache/offline"
+    if [[ ${NINEB7_BIND_OFFLINE:-0} == 1 ]]; then
+        [[ $EUID == 0 ]] || { echo 'Offline bind mode requires the privileged builder' >&2; exit 1; }
+        mkdir -p "$root/opt/9b7/offline"
+        mount --bind "$project/cache/offline" "$root/opt/9b7/offline"
+        mount -o remount,bind,ro "$root/opt/9b7/offline"
+    else
+        cp -a "$project/cache/offline" "$root/opt/9b7/"
+    fi
 fi
 printf '%s\n' "$edition" > "$root/etc/9b7-edition"
-git -C "$project" rev-parse HEAD > "$root/opt/9b7/SOURCE-COMMIT"
+git -c safe.directory="$project" -C "$project" rev-parse HEAD > "$root/opt/9b7/SOURCE-COMMIT"
 echo "Prepared $edition profile: $profile"
