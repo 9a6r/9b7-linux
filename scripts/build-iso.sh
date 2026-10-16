@@ -52,7 +52,23 @@ SigLevel = Required DatabaseRequired
 Server = file://$project/cache/packages
 LOCALREPO
 printf 'vscodium-bin\nburpsuite\nobsidian-bin\npython-cassandra-driver\n' >> "$build/profile/packages.x86_64"
-mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"
+if ! mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"; then
+    root="$build/work/x86_64/airootfs"
+    # Some container hosts expose a bare devtmpfs without /dev/stdin. Arch's
+    # kernel hook then fails despite successful package installation. The
+    # supported namespace mode creates private standard device links.
+    if [[ -f "$build/work/base._make_packages" &&
+          ! -s "$build/work/x86_64/boot/initramfs-linux.img" &&
+          -f "$root/usr/share/libalpm/scripts/mkinitcpio" ]]; then
+        echo 'Retrying missing initramfs with private chroot device links...'
+        arch-chroot -N "$root" bash -c 'printf "%s\n" usr/lib/modules/*/vmlinuz | /usr/share/libalpm/scripts/mkinitcpio install'
+        [[ -s "$root/boot/initramfs-linux.img" && -s "$root/boot/vmlinuz-linux" ]]
+        rm -f "$build/work/base._copy_boot_out_of_pacstrap_dir" "$build/work/base._check_if_initramfs_has_ucode"
+        mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"
+    else
+        exit 1
+    fi
+fi
 image=$(find "$project/out" -maxdepth 1 -name '9b7-linux-*.iso' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
 [[ -s $image ]]
 mv "$image" "${image%.iso}-$edition.iso"

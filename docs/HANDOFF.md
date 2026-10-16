@@ -89,3 +89,10 @@
 - فحص Qt النهائي نجح؛ screenshot حقيقية محفوظة في docs/images/studio.png.
 - حزم desktop جرى تنزيلها والتحقق منها مسبقًا. البناء الكامل سيستخدم /tmp/9b7-iso-work داخل 9b7-builder، مع NINEB7_BIND_OFFLINE=1. cache pacman انتقل إلى tmpfs منفصل لتوفير القرص.
 - المصادر مرفوعة تدريجيًا. ملف ISO لم يتولد بعد؛ يجب تسجيل نتيجته وإقلاعه قبل تسليم رابط تنزيل.
+
+## 2026-10-16 — المرحلة 7: البناء الفعلي
+
+- بدأ full من 3fa935d، في حاوية 9b7-builder ومسار /tmp/9b7-iso-work/iso-full.WkF1GR. كل حزم Arch ثُبتت؛ الحجم المنطقي للبرامج نحو 7.5GiB بالإضافة إلى 7.9GiB offline.
+- cache pacman بحجم 3GiB امتلأ، فرُفع إلى 4GiB. نسخة Burp الجزئية رُفضت بالـchecksum؛ الأصل ومطابقة توقيعه وفهرسه صحيحان، وأُعيدت نسخته. لا تعطيل للتحقق.
+- kernel hook فشل بسبب غياب /dev/stdin في devtmpfs الخاص بالسحابة. arch-chroot -N يجهز روابط أجهزة خاصة ويعالج السبب؛ أُضيف استدراك محدود لهذه الحالة في build-iso.sh. توليد initramfs مستمر، ثم تستأنف mkarchiso من نفس work directory.
+- سجلات مؤقتة: /tmp/9b7-iso-resume2.log و/tmp/9b7-initramfs-repair.log. لا تعد ISO جاهزًا قبل اكتمال الملف واختباره.
