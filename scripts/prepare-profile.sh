@@ -6,13 +6,14 @@ profile=${1:?Usage: prepare-profile.sh NEW_PROFILE_DIRECTORY [desktop|full]}
 edition=${2:-full}
 [[ $edition == full || $edition == desktop ]] || { echo 'Unknown edition' >&2; exit 2; }
 [[ ! -e $profile ]] || { echo "Profile already exists: $profile (use a new directory)" >&2; exit 2; }
-[[ -d /usr/share/archiso/configs/releng ]] || { echo 'Install archiso on an Arch builder first' >&2; exit 1; }
+releng=${ARCHISO_RELENG:-/usr/share/archiso/configs/releng}
+[[ -d $releng ]] || { echo 'Install archiso on an Arch builder first' >&2; exit 1; }
 mkdir -p "$profile"
-cp -a /usr/share/archiso/configs/releng/. "$profile/"
+cp -a "$releng/." "$profile/"
 cp -a "$project/iso/airootfs/." "$profile/airootfs/"
 root="$profile/airootfs"
 # Replace only conflicting packages inherited from releng.
-sed -i '/^virtualbox-guest-utils-nox$/d; /^iptables$/d' "$profile/packages.x86_64"
+sed -i '/^virtualbox-guest-utils-nox$/d; /^iptables$/d; /^ntfsprogs$/d' "$profile/packages.x86_64"
 cat "$project/iso/packages.x86_64" >> "$profile/packages.x86_64"
 sort -u -o "$profile/packages.x86_64" "$profile/packages.x86_64"
 sed -i '/^iso_name=/c\iso_name="9b7-linux"' "$profile/profiledef.sh"
@@ -32,7 +33,10 @@ for script in "$root"/usr/local/bin/9b7-*; do
     printf 'file_permissions["%s"]="0:0:755"\n' "${script#"$root"}" >> "$profile/profiledef.sh"
 done
 # Releng is a root installer environment: remove its automatic root login and network services.
-find "$root/etc/systemd/system" -type l \( -name 'sshd.service' -o -name 'iwd.service' -o -name 'systemd-networkd.service' -o -name 'systemd-networkd.socket' -o -name 'systemd-resolved.service' \) -delete
+find "$root/etc/systemd/system" -type l \( -name 'sshd.service' -o -name 'iwd.service' -o -name 'systemd-networkd.service' -o -name 'systemd-networkd.socket' -o -name 'systemd-resolved.service' -o -name 'systemd-networkd-wait-online.service' -o -name 'systemd-time-wait-sync.service' -o -name 'dbus-org.freedesktop.resolve1.service' -o -name 'dbus-org.freedesktop.network1.service' \) -delete
+rm -rf "$root/etc/systemd/system/cloud-init.target.wants"
+mkdir -p "$root/etc/cloud"
+touch "$root/etc/cloud/cloud-init.disabled"
 rm -rf "$root/etc/systemd/system/getty@tty1.service.d" "$root/etc/systemd/system/serial-getty@.service.d" "$root/etc/systemd/system/getty@.service.d"
 rm -f "$root/root/.automated_script.sh" "$root/etc/systemd/system/multi-user.target.wants/reflector.service"
 printf 'root:!:19000:0:99999:7:::\n' > "$root/etc/shadow"

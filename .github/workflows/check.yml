@@ -1,0 +1,28 @@
+name: Validate project
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Core and Compose validation
+        run: bash scripts/check.sh
+      - name: Install desktop test dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libegl1 libopengl0 libxkbcommon0
+          python -m pip install -e '.[desktop,databases]'
+      - name: Exercise the real desktop data workflow
+        env:
+          QT_QPA_PLATFORM: offscreen
+          NINEB7_SCREENSHOT: /tmp/9b7-studio.png
+        run: python tests/gui_smoke.py
+      - uses: actions/upload-artifact@v4
+        with:
+          name: studio-smoke-screenshot
+          path: /tmp/9b7-studio.png

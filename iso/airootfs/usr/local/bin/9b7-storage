@@ -1,0 +1,39 @@
+#!/usr/bin/env bash
+# Attach an ALREADY mounted ext4 data partition for Docker in a live session.
+# This command never partitions or formats a device.
+set -euo pipefail
+[[ $EUID == 0 ]] || { echo 'Use sudo 9b7-storage /path/to/mounted-ext4' >&2; exit 1; }
+mount_dir=${1:?Usage: sudo 9b7-storage /path/to/mounted-ext4}
+mount_dir=$(realpath "$mount_dir")
+mountpoint -q "$mount_dir" || { echo 'Choose an existing mount point.' >&2; exit 1; }
+[[ $(findmnt -nro FSTYPE -T "$mount_dir") == ext4 ]] || { echo 'An ext4 data filesystem is required.' >&2; exit 1; }
+free_kib=$(df --output=avail -k "$mount_dir" | tail -1)
+(( free_kib >= 20000000 )) || { echo 'At least 20 GB free is required.' >&2; exit 1; }
+target="$mount_dir/9b7-docker"
+if [[ -e $target && ! -f "$target/.9b7-store" ]]; then
+    echo 'Destination exists without a 9b7 marker; refusing to alter it.' >&2; exit 1
+fi
+if systemctl is-active --quiet docker; then
+    current=$(docker info --format '{{.DockerRootDir}}')
+    [[ $current != "$target" ]] || { echo 'This store is already active.'; exit 0; }
+    if [[ -n $(docker ps -aq) || -n $(docker image ls -q) || -n $(docker volume ls -q) ]]; then
+        echo 'Current Docker store contains data. Preserve/migrate it separately before changing storage.' >&2
+        exit 1
+    fi
+fi
+mkdir -p "$target" /etc/docker
+touch "$target/.9b7-store"
+systemctl stop docker.service docker.socket
+python - "$target" <<'PY'
+import json, os, pathlib, sys, tempfile
+path=pathlib.Path('/etc/docker/daemon.json')
+data=json.loads(path.read_text()) if path.exists() else {}
+data['data-root']=sys.argv[1]
+data['storage-driver']='overlay2'
+data.setdefault('features',{})['containerd-snapshotter']=False
+fd,temp=tempfile.mkstemp(dir=path.parent)
+with os.fdopen(fd,'w') as stream: json.dump(data,stream,indent=2)
+os.replace(temp,path)
+PY
+systemctl start docker
+docker info --format 'Active Docker store: {{.DockerRootDir}} ({{.Driver}})'

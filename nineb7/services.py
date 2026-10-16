@@ -55,8 +55,12 @@ def compose_command(stack: str, *arguments: str) -> list[str]:
         raise ValueError("unknown stack: " + stack)
     env_file = prepare()
     config = project_root() / "services" / ("erpnext.compose.yml" if stack == "erpnext" else "compose.yml")
-    return ["docker", "compose", "--env-file", str(env_file), "--project-name", "9b7-" + stack,
-            "-f", str(config), "--profile", stack, *arguments]
+    command = ["docker", "compose", "--env-file", str(env_file), "--project-name", "9b7-" + stack,
+               "-f", str(config)]
+    override = project_root() / "offline" / (config.name + ".override.json")
+    if override.exists():
+        command.extend(["-f", str(override)])
+    return [*command, "--profile", stack, *arguments]
 
 
 def healthy(stack: str) -> bool:
@@ -76,11 +80,15 @@ def ensure_images(stack: str) -> None:
     proc = subprocess.run(compose_command(stack, "config", "--images"), capture_output=True, text=True, check=True)
     manifest_file = project_root() / "offline/manifest.json"
     manifest = json.loads(manifest_file.read_text()) if manifest_file.exists() else {}
+    by_tag = {item["local_tag"]: item for item in manifest.values()}
     for name in dict.fromkeys(proc.stdout.splitlines()):
-        if subprocess.run(["docker", "image", "inspect", name], stdout=subprocess.DEVNULL,
-                          stderr=subprocess.DEVNULL).returncode == 0:
+        entry = manifest.get(name) or by_tag.get(name)
+        inspection = subprocess.run(["docker", "image", "inspect", "--format", "{{.Id}}", name],
+                                    capture_output=True, text=True)
+        if inspection.returncode == 0:
+            if entry and inspection.stdout.strip() != entry["image_id"]:
+                raise ValueError("Cached offline image ID mismatch: " + name)
             continue
-        entry = manifest.get(name)
         if entry:
             archive = manifest_file.parent / entry["file"]
             with archive.open("rb") as stream:
@@ -88,7 +96,12 @@ def ensure_images(stack: str) -> None:
             if digest != entry["sha256"]:
                 raise ValueError("offline image checksum mismatch: " + name)
             subprocess.run(["docker", "load", "-i", str(archive)], check=True)
+            actual = subprocess.check_output(["docker", "image", "inspect", "--format", "{{.Id}}", name], text=True).strip()
+            if actual != entry["image_id"]:
+                raise ValueError("Loaded offline image ID mismatch: " + name)
         else:
+            if name.startswith("9b7-offline/"):
+                raise ValueError("Offline manifest is incomplete: " + name)
             subprocess.run(["docker", "pull", name], check=True)
 
 
@@ -96,6 +109,12 @@ def action(stack: str, operation: str, wait: bool = True) -> None:
     if operation not in {"start", "stop", "status", "logs"}:
         raise ValueError("unsupported service action")
     if operation == "start":
+        if Path("/run/archiso/bootmnt").exists():
+            docker_root = subprocess.check_output(["docker", "info", "--format", "{{.DockerRootDir}}"], text=True).strip()
+            filesystem = subprocess.check_output(["findmnt", "-nro", "FSTYPE", "-T", docker_root], text=True).strip()
+            if filesystem != "ext4":
+                raise RuntimeError("Live mode needs persistent ext4 Docker storage. Mount a data partition and run "
+                                   "sudo 9b7-storage /path/to/mount, or install 9b7 onto the virtual/physical disk first.")
         ensure_images(stack)
         subprocess.run(compose_command(stack, "up", "-d", "--wait", "--wait-timeout", "600"), check=True)
         if wait and CATALOG[stack]["port"]:

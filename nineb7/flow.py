@@ -96,7 +96,8 @@ def metrics(db: sqlite3.Connection) -> dict:
 
 
 def run(csv_path: Path, database: Path, output: Path, strict: bool = False) -> dict:
-    raw = csv_path.read_bytes()
+    with csv_path.open("rb") as stream:
+        raw = stream.read(MAX_CSV_BYTES + 1)
     if len(raw) > MAX_CSV_BYTES:
         raise ValueError("CSV exceeds the 25 MiB import limit")
     # Parse the exact bytes we hash; reject malformed headers before changing data.

@@ -71,6 +71,8 @@ mount "$root" "$target"
 mkdir -p "$target/boot/efi"
 mount "$efi" "$target/boot/efi"
 rsync -aHAX --numeric-ids --info=progress2 "$source_root/" "$target/"
+# archiso keeps its boot kernel on the ISO filesystem, outside the compressed root.
+install -m 644 /run/archiso/bootmnt/arch/boot/x86_64/vmlinuz-linux "$target/boot/vmlinuz-linux"
 mkdir -p "$target/etc/mkinitcpio.conf.d" "$target/etc/default"
 rm -f "$target/etc/mkinitcpio.conf.d/archiso.conf" "$target/etc/initcpio/hooks/archiso" \
     "$target/etc/systemd/system/multi-user.target.wants/pacman-init.service" \
@@ -103,6 +105,8 @@ PRESET
 genfstab -U "$target" > "$target/etc/fstab"
 arch-chroot "$target" /usr/local/bin/9b7-firstboot
 arch-chroot "$target" locale-gen
+arch-chroot "$target" pacman-key --init
+arch-chroot "$target" pacman-key --populate archlinux
 arch-chroot "$target" systemd-machine-id-setup
 arch-chroot "$target" mkinitcpio -P
 arch-chroot "$target" grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=9b7 --removable --no-nvram

@@ -42,14 +42,28 @@ def main():
                         print("Reusing verified archive:", image, flush=True)
                         continue
             run("docker", "pull", "--platform", "linux/amd64", image)
+            local_tag = "9b7-offline/" + image.split(":")[0].replace("/", "-") + ":" + image.rsplit(":", 1)[1]
+            run("docker", "tag", image, local_tag)
             temp = archive.with_suffix(".partial")
-            run("docker", "save", "-o", str(temp), image)
+            run("docker", "save", "-o", str(temp), local_tag)
             temp.replace(archive)
             digest = subprocess.check_output(["docker", "image", "inspect", "--format", "{{index .RepoDigests 0}}", image], text=True).strip()
             with archive.open("rb") as stream:
                 checksum = hashlib.file_digest(stream, "sha256").hexdigest()
-            manifest[image] = {"file": archive.name, "sha256": checksum, "digest": digest}
+            image_id = subprocess.check_output(["docker", "image", "inspect", "--format", "{{.Id}}", image], text=True).strip()
+            manifest[image] = {"file": archive.name, "sha256": checksum, "digest": digest,
+                               "local_tag": local_tag, "image_id": image_id}
             manifest_path.write_text(json.dumps(manifest, indent=2) + "\n")
+        # Docker save/load does not preserve registry RepoDigests. Verified local tags
+        # and image IDs are used in these overrides, so full ISOs never need a registry.
+        for stack, filename in [("databases", "compose.yml"), ("erpnext", "erpnext.compose.yml")]:
+            cmd = services.compose_command(stack, "config", "--format", "json")
+            # Activate every profile while generating the complete main override.
+            cmd[cmd.index("--profile") + 1] = "*"
+            config = json.loads(subprocess.check_output(cmd, text=True))
+            override = {"services": {name: {"image": manifest[svc["image"]]["local_tag"]}
+                                      for name, svc in config["services"].items()}}
+            (output / (filename + ".override.json")).write_text(json.dumps(override, indent=2) + "\n")
         # The temporary model container has no host ports and is always removed.
         ai_image = next(name for name in images if name.startswith("ollama/ollama:"))
         container = "9b7-model-export-" + str(os.getpid())

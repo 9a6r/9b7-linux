@@ -1,0 +1,41 @@
+name: Build ISO
+on:
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: 'full requires a self-hosted 9b7-builder runner with 100GB free'
+        type: choice
+        options: [desktop, full]
+        default: desktop
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ${{ inputs.edition == 'full' && fromJSON('["self-hosted", "linux", "x64", "9b7-builder"]') || 'ubuntu-24.04' }}
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate source
+        run: bash scripts/check.sh
+      - name: Show builder resources
+        run: |
+          df -h .
+          free -h
+          docker info --format 'Storage driver={{.Driver}}'
+      - name: Prepare signed Arch builder
+        run: docker build -t 9b7-builder -f scripts/builder.Dockerfile .
+      - name: Build and sign additional packages
+        run: docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-extra-packages.sh
+      - name: Bundle images and local model
+        if: inputs.edition == 'full'
+        run: python3 scripts/bundle-offline.py
+      - name: Build hybrid ISO
+        env:
+          EDITION: ${{ inputs.edition }}
+        run: docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-iso.sh "$EDITION"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: 9b7-${{ inputs.edition }}-${{ github.sha }}
+          path: out/
+          compression-level: 0
+          retention-days: 7

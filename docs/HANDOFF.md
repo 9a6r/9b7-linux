@@ -47,3 +47,12 @@
 - حساب Metabase الذي أُنشئ للاختبار فقط لا يدخل ISO. أُزيلت حاويات/صور الاختبار بعد انتهائها لاستعادة المساحة.
 - Docker في السحابة يستخدم vfs؛ محاولة سحب Superset أُوقفت قبل امتلاء المساحة. يجري إعادة الاختبار بعد تنظيف صورنا فقط.
 - أُضيفت أتمتة inbox عبر systemd user path وAnsible playbook.
+
+## 2026-10-16 — المرحلة 3
+
+- Superset 6.1.0: تهيئة، دخول 9b7/9b7 وAPI `/api/v1/me/` نجحت؛ إيقاف وإعادة تشغيل نجحا دون إعادة إنشاء الحساب.
+- الاختبارات أصبحت 15، تشمل Inbox فعلياً ورفض archive معدل قبل docker load.
+- ثُبتت 10 صور Docker بـlinux/amd64 digests. أُصلح مسار offline باستخدام local tags + image ID لأن docker save/load لا يحتفظ بـRepoDigests.
+- جُرّب توليد profile مقابل releng الرسمي في work/profile-validation؛ استُخدم Qt SVG renderer بدلاً من librsvg غير الموجود بالمضيف. هذا تحقق هيكلي فقط، وليس build أو boot.
+- أُضيفت وثائق عربية، GitHub Actions، دليل BIS، تراخيص، storage helper لقسم ext4 دون فرمتة، وlock لحزم Python.
+- تحديث الشبكة: فحص HTTPS جديد لمرايا Arch نجح (200)؛ manifest نموذج Ollama نجح. استُؤنف تجهيز Arch builder؛ لا تعتبر الشبكة محجوبة حالياً.

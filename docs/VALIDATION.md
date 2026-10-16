@@ -1,0 +1,40 @@
+# Validation evidence and release gates
+
+Updated 2026-10-16. These results concern this development environment, not an ISO boot certification.
+
+| Check | Result | Evidence / limits |
+|---|---|---|
+| Core Flow + database + service tests | PASS | 15 tests executed; money precision, atomic rollback, duplicate/conflict behavior, HTML escaping, read-only SQLite, audit and private state |
+| Native Qt GUI | PASS | Offscreen real demo import, expected 8 orders, real SQLite query returning 4 products, screenshot |
+| Compose configuration | PASS | Seven selectable stacks parsed by Docker Compose v2.40.3 |
+| Shell syntax / ShellCheck | PASS | Current original shell scripts checked, warning severity |
+| n8n 2.43.6 | PASS | HTTP health plus imported `automation/n8n-demo.json`, CLI execution `status=success`, `finished=true`, expected output KPIs |
+| Metabase 0.64.1 | PASS | PostgreSQL metadata initialized, health=ok, actual sample query `SELECT COUNT(*) FROM ORDERS` returned 18760 |
+| Superset 6.1.0 | PASS | Initialization, authenticated login/API, stop/start with retained account |
+| Odoo / ERPNext | PENDING | Runtime checks in progress; configuration validation alone is insufficient |
+| Cassandra / PostgreSQL / Redis console | PENDING | SQLite verified; remaining engine integration checks not yet complete |
+| Local Ollama inference | PENDING | Agent orchestration tested with controlled generator; actual model inference is not yet verified |
+| Arch package installation / ISO generation | IN PROGRESS | Mirror access now returns HTTP 200; builder setup resumed. No ISO yet |
+| BIOS + UEFI live boot | NOT RUN | Requires generated ISO |
+| VirtualBox + laptop boot | NOT RUN | Requires generated ISO and target hardware |
+| Whole-disk installation + second boot | NOT RUN | Installer is not certified; first test must use a disposable virtual disk |
+| Full edition offline services | NOT RUN | Requires full verified bundle and sufficient persistent storage |
+
+## Release checklist
+
+- [ ] `scripts/check.sh` and GUI smoke succeed on final commit.
+- [ ] AUR package builds complete with checksums/signatures; installed package versions recorded.
+- [ ] `full` bundle contains all declared image digests and verified local model archive.
+- [ ] `mkarchiso` completes, outputs ISO and SHA256, with no omitted requested component.
+- [ ] BIOS boot reaches greeter; login 9b7 succeeds; desktop, keyboard, networking, audio work.
+- [ ] UEFI boot reaches greeter with Secure Boot disabled.
+- [ ] Hyprland on supported physical GPU; XFCE compatibility in VirtualBox VMSVGA.
+- [ ] Firefox, VSCodium, Obsidian, Wireshark, Burp, Ansible and btop start.
+- [ ] Run Studio demo twice: still 8 orders; imported=0, duplicates=8 on second run.
+- [ ] Install to disposable VDI, eject ISO, reboot, then test persistent data and GRUB menu.
+- [ ] Disconnect network; start each full-edition stack one at a time and run functional requests.
+- [ ] Run three local AI agents and inspect generated figures against report.
+- [ ] Record memory/disk usage on the user's 8GB laptop and restore after reboot.
+- [ ] Confirm bundled software redistribution terms before a public binary release.
+
+Store large ISO/VM artifacts outside Git. Preserve concise evidence here, not logs containing authentication tokens or credentials.

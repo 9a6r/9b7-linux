@@ -114,9 +114,16 @@ class Studio(QMainWindow):
         self.kpi.setStyleSheet("font-size:21px; padding:24px; color:#70e5b6")
         self.kpi.setWordWrap(True)
         layout.addWidget(self.kpi)
-        self.results = QTextEdit()
-        self.results.setReadOnly(True)
+        self.results = QTableWidget(0, 3)
+        self.results.setHorizontalHeaderLabels(["Product", "Units sold", "Revenue"])
+        self.results.horizontalHeader().setStretchLastSection(True)
+        self.results.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         layout.addWidget(self.results)
+        self.audit = QTextEdit()
+        self.audit.setReadOnly(True)
+        self.audit.setMaximumHeight(140)
+        self.audit.setPlaceholderText("Import history and data-quality issues will appear here.")
+        layout.addWidget(self.audit)
         return page
 
     def run_demo(self):
@@ -136,7 +143,16 @@ class Studio(QMainWindow):
         k = result["kpis"]
         self.kpi.setText(f'{k["orders"]} orders    /    Revenue {k["revenue"]:,.2f}    /    Profit {k["profit"]:,.2f}\n'
                          f'Margin {k["margin_percent"]}%   ·   Rejected rows: {result["rejected"]}')
-        self.results.setPlainText(json.dumps(result, ensure_ascii=False, indent=2))
+        products = k["top_products"]
+        self.results.setRowCount(len(products))
+        for row, product in enumerate(products):
+            for col, value in enumerate((product["product"], product["units"], f'{product["revenue"]:,.2f}')):
+                self.results.setItem(row, col, QTableWidgetItem(str(value)))
+        self.results.resizeColumnsToContents()
+        lines = [f'Imported {result["inserted"]} new orders · {result["duplicates"]} duplicates skipped · {result["rejected"]} rows need review',
+                 f'Audit reference: {result["run_id"]}']
+        lines.extend(f'Row {error["line"]}: {error["reason"]}' for error in result["errors"][:20])
+        self.audit.setPlainText("\n".join(lines))
         self.status.setText("Import complete · audit history saved in SQLite")
 
     def open_report(self):
@@ -230,8 +246,12 @@ class Studio(QMainWindow):
             self.show_error("Run the demo or import a CSV first, then start Local AI from Lab services.")
             return
         self.task(lambda: agents.analyze(self.report),
-                  lambda notes: self.ai_output.setPlainText("\n\n".join(n["agent"].upper() + "\n" + n["text"] for n in notes)),
+                  self.analyzed,
                   "Three agents are reviewing the report; CPU inference can take several minutes…")
+
+    def analyzed(self, notes):
+        self.ai_output.setPlainText("\n\n".join(n["agent"].upper() + "\n" + n["text"] for n in notes))
+        self.status.setText("Three-agent review complete · review suggestions before acting")
 
     def help_page(self):
         page = QWidget()
