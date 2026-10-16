@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Name=9b7 Welcome
+Exec=9b7-welcome
+OnlyShowIn=XFCE;
+X-GNOME-Autostart-enabled=true

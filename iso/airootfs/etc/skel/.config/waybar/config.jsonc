@@ -1,0 +1,16 @@
+{
+  "layer": "top",
+  "position": "top",
+  "height": 32,
+  "modules-left": ["custom/brand", "hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["cpu", "memory", "network", "pulseaudio", "battery", "tray"],
+  "custom/brand": {"format": "  9b7 / BIS  ", "on-click": "9b7-studio", "tooltip": false},
+  "clock": {"format": "{:%a %d %b  ·  %H:%M}", "tooltip-format": "{:%Y-%m-%d}"},
+  "cpu": {"format": "CPU {usage}%"},
+  "memory": {"format": "RAM {percentage}%"},
+  "network": {"format-wifi": "{essid}", "format-ethernet": "LAN", "format-disconnected": "Offline"},
+  "pulseaudio": {"format": "VOL {volume}%", "on-click": "pavucontrol"},
+  "battery": {"format": "BAT {capacity}%"},
+  "tray": {"spacing": 10}
+}

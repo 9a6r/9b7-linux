@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=9b7 BIS Studio
+Name[ar]=استوديو نظم معلومات الأعمال
+Comment=Business analytics, automation, database console and local AI agents
+Exec=9b7-studio
+Icon=9b7
+Terminal=false
+Type=Application
+Categories=Office;Development;

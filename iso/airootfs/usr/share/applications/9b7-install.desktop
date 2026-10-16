@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=Install 9b7 Linux
+Name[ar]=تثبيت 9b7 Linux على القرص
+Comment=Guided whole-disk installation; erases the selected disk after explicit confirmation
+Exec=xfce4-terminal --hold --command="sudo /usr/local/bin/9b7-install"
+Icon=system-software-install
+Terminal=false
+Type=Application
+Categories=System;

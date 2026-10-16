@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+state="${XDG_STATE_HOME:-$HOME/.local/state}/9b7"
+mkdir -p "$state"
+if [[ ! -f "$state/welcome-seen" ]]; then
+    touch "$state/welcome-seen"
+    exec 9b7-studio
+fi

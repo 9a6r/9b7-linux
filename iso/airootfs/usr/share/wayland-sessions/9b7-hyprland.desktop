@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=9b7 Hyprland
+Comment=9b7 BIS workspace (Wayland)
+Exec=/usr/local/bin/9b7-session
+Type=Application
+DesktopNames=Hyprland

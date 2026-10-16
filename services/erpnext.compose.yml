@@ -1,0 +1,121 @@
+# Adapted from frappe/frappe_docker pwd.yml (MIT). See docs/THIRD-PARTY.md.
+x-image: &image frappe/erpnext:v16.51.1
+x-volumes: &sites
+  - sites:/home/frappe/frappe-bench/sites
+  - logs:/home/frappe/frappe-bench/logs
+x-app: &app
+  image: *image
+  volumes: *sites
+  environment:
+    FRAPPE_REDIS_CACHE: redis://redis-cache:6379
+    FRAPPE_REDIS_QUEUE: redis://redis-queue:6379
+  depends_on:
+    create-site: {condition: service_completed_successfully}
+services:
+  db:
+    image: mariadb:11.8
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Run 9b7-services first}
+    command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --skip-character-set-client-handshake]
+    volumes: ["db:/var/lib/mysql"]
+    healthcheck:
+      test: [CMD, healthcheck.sh, --connect, --innodb_initialized]
+      interval: 5s
+      timeout: 5s
+      retries: 40
+    mem_limit: 512m
+  redis-cache:
+    image: redis:7.4-alpine
+    mem_limit: 128m
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  redis-queue:
+    image: redis:7.4-alpine
+    volumes: ["redis:/data"]
+    command: [redis-server, --appendonly, "yes"]
+    mem_limit: 128m
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  configurator:
+    image: *image
+    volumes: *sites
+    depends_on:
+      db: {condition: service_healthy}
+      redis-cache: {condition: service_healthy}
+      redis-queue: {condition: service_healthy}
+    entrypoint: [bash, -ec]
+    command:
+      - |
+        ls -1 apps > sites/apps.txt
+        bench set-config -g db_host db
+        bench set-config -gp db_port 3306
+        bench set-config -g redis_cache redis://redis-cache:6379
+        bench set-config -g redis_queue redis://redis-queue:6379
+        bench set-config -g redis_socketio redis://redis-queue:6379
+        bench set-config -gp socketio_port 9000
+    mem_limit: 512m
+  create-site:
+    image: *image
+    volumes: *sites
+    depends_on:
+      configurator: {condition: service_completed_successfully}
+    environment:
+      DB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Run 9b7-services first}
+      LAB_ADMIN_PASSWORD: ${LAB_ADMIN_PASSWORD:-9b7}
+    entrypoint: [bash, -ec]
+    command:
+      - |
+        if [ ! -f sites/frontend/.9b7-initialized ]; then
+          if [ ! -f sites/frontend/site_config.json ]; then
+            bench new-site --mariadb-user-host-login-scope='%' \
+              --admin-password="$$LAB_ADMIN_PASSWORD" --db-root-username=root \
+              --db-root-password="$$DB_ROOT_PASSWORD" --set-default frontend
+          fi
+          bench --site frontend install-app erpnext
+          bench --site frontend migrate
+          touch sites/frontend/.9b7-initialized
+        fi
+    mem_limit: 1536m
+  backend:
+    <<: *app
+    mem_limit: 1024m
+  frontend:
+    <<: *app
+    command: [nginx-entrypoint.sh]
+    environment:
+      BACKEND: backend:8000
+      FRAPPE_SITE_NAME_HEADER: frontend
+      SOCKETIO: websocket:9000
+      UPSTREAM_REAL_IP_ADDRESS: 127.0.0.1
+      UPSTREAM_REAL_IP_HEADER: X-Forwarded-For
+      UPSTREAM_REAL_IP_RECURSIVE: "off"
+      PROXY_READ_TIMEOUT: 120
+      CLIENT_MAX_BODY_SIZE: 50m
+    depends_on:
+      backend: {condition: service_started}
+      websocket: {condition: service_started}
+    ports: ["127.0.0.1:8080:8080"]
+    mem_limit: 192m
+  websocket:
+    <<: *app
+    command: [node, /home/frappe/frappe-bench/apps/frappe/socketio.js]
+    mem_limit: 256m
+  worker:
+    <<: *app
+    command: [bench, worker, --queue, "long,default,short"]
+    mem_limit: 768m
+  scheduler:
+    <<: *app
+    command: [bench, schedule]
+    mem_limit: 384m
+volumes:
+  db:
+  sites:
+  logs:
+  redis:

@@ -1,0 +1,166 @@
+services:
+  n8n:
+    image: n8nio/n8n:2.43.6
+    profiles: [n8n]
+    ports: ["127.0.0.1:5678:5678"]
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_SECURE_COOKIE: "false"
+      N8N_ENCRYPTION_KEY: ${N8N_ENCRYPTION_KEY:?Run 9b7-services first}
+      N8N_DIAGNOSTICS_ENABLED: "false"
+      N8N_ENFORCE_SETTINGS_FILE_PERMISSIONS: "true"
+      GENERIC_TIMEZONE: Africa/Cairo
+    volumes: ["n8n:/home/node/.n8n"]
+    mem_limit: 768m
+
+  metabase-db:
+    image: postgres:16-alpine
+    profiles: [metabase]
+    environment:
+      POSTGRES_DB: metabase
+      POSTGRES_USER: metabase
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run 9b7-services first}
+    volumes: ["metabase-db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U metabase -d metabase"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    mem_limit: 256m
+  metabase:
+    image: metabase/metabase:v0.64.1
+    profiles: [metabase]
+    depends_on:
+      metabase-db: {condition: service_healthy}
+    ports: ["127.0.0.1:3000:3000"]
+    environment:
+      MB_DB_TYPE: postgres
+      MB_DB_DBNAME: metabase
+      MB_DB_PORT: 5432
+      MB_DB_USER: metabase
+      MB_DB_PASS: ${POSTGRES_PASSWORD:?Run 9b7-services first}
+      MB_DB_HOST: metabase-db
+      JAVA_OPTS: -Xmx1024m
+    mem_limit: 1536m
+
+  odoo-db:
+    image: postgres:16-alpine
+    profiles: [odoo]
+    environment:
+      POSTGRES_DB: postgres
+      POSTGRES_USER: odoo
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Run 9b7-services first}
+    volumes: ["odoo-db:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U odoo -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    mem_limit: 256m
+  odoo:
+    image: odoo:18.0
+    profiles: [odoo]
+    depends_on:
+      odoo-db: {condition: service_healthy}
+    ports: ["127.0.0.1:8069:8069"]
+    environment:
+      HOST: odoo-db
+      USER: odoo
+      PASSWORD: ${POSTGRES_PASSWORD:?Run 9b7-services first}
+    volumes:
+      - odoo:/var/lib/odoo
+      - ./odoo.conf:/etc/odoo/odoo.conf:ro
+    mem_limit: 1536m
+
+  superset-init:
+    image: apache/superset:6.1.0
+    profiles: [superset]
+    user: "superset"
+    environment: &superset-env
+      SUPERSET_CONFIG_PATH: /app/pythonpath/superset_config.py
+      SUPERSET_SECRET_KEY: ${SUPERSET_SECRET_KEY:?Run 9b7-services first}
+      LAB_ADMIN_USER: ${LAB_ADMIN_USER:-9b7}
+      LAB_ADMIN_PASSWORD: ${LAB_ADMIN_PASSWORD:-9b7}
+    volumes: &superset-volumes
+      - superset:/app/superset_home
+      - ./superset_config.py:/app/pythonpath/superset_config.py:ro
+      - ./superset-init.py:/app/pythonpath/9b7_init.py:ro
+    command: [python, /app/pythonpath/9b7_init.py]
+    mem_limit: 1536m
+  superset:
+    image: apache/superset:6.1.0
+    profiles: [superset]
+    user: "superset"
+    depends_on:
+      superset-init: {condition: service_completed_successfully}
+    environment: *superset-env
+    volumes: *superset-volumes
+    ports: ["127.0.0.1:8088:8088"]
+    command: [gunicorn, --bind, "0.0.0.0:8088", --workers, "1", --threads, "4", --timeout, "120", "superset.app:create_app()"]
+    mem_limit: 2048m
+
+  ai:
+    image: ollama/ollama:0.40.5
+    profiles: [ai]
+    ports: ["127.0.0.1:11434:11434"]
+    environment:
+      OLLAMA_MAX_LOADED_MODELS: 1
+      OLLAMA_NUM_PARALLEL: 1
+    volumes: ["ollama:/root/.ollama"]
+    mem_limit: 2560m
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: [databases]
+    ports: ["127.0.0.1:5432:5432"]
+    environment:
+      POSTGRES_DB: bis
+      POSTGRES_USER: 9b7
+      POSTGRES_PASSWORD: ${LAB_ADMIN_PASSWORD:-9b7}
+    volumes: ["lab-postgres:/var/lib/postgresql/data"]
+    healthcheck:
+      test: [CMD-SHELL, "pg_isready -U 9b7 -d bis"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    mem_limit: 256m
+  cassandra:
+    image: cassandra:4.1
+    profiles: [databases]
+    ports: ["127.0.0.1:9042:9042"]
+    environment:
+      MAX_HEAP_SIZE: 768M
+      HEAP_NEWSIZE: 200M
+    volumes: ["cassandra:/var/lib/cassandra"]
+    healthcheck:
+      test: [CMD-SHELL, "cqlsh -e 'SELECT cluster_name FROM system.local'"]
+      start_period: 90s
+      interval: 20s
+      timeout: 15s
+      retries: 20
+    mem_limit: 2048m
+  redis:
+    image: redis:7.4-alpine
+    profiles: [databases]
+    ports: ["127.0.0.1:6379:6379"]
+    volumes: ["lab-redis:/data"]
+    command: [redis-server, --appendonly, "yes"]
+    healthcheck:
+      test: [CMD, redis-cli, ping]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    mem_limit: 128m
+
+volumes:
+  n8n:
+  metabase-db:
+  odoo:
+  odoo-db:
+  superset:
+  ollama:
+  lab-postgres:
+  cassandra:
+  lab-redis:

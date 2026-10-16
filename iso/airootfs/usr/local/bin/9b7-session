@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export XDG_CURRENT_DESKTOP=Hyprland
+export XDG_SESSION_TYPE=wayland
+if grep -qw '9b7.safe=1' /proc/cmdline || [[ $(systemd-detect-virt) == oracle ]]; then
+    export LIBGL_ALWAYS_SOFTWARE=1
+    export WLR_RENDERER_ALLOW_SOFTWARE=1
+    export AQ_NO_MODIFIERS=1
+fi
+exec dbus-run-session Hyprland
