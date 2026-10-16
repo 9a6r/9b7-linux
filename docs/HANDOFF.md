@@ -96,3 +96,5 @@
 - cache pacman بحجم 3GiB امتلأ، فرُفع إلى 4GiB. نسخة Burp الجزئية رُفضت بالـchecksum؛ الأصل ومطابقة توقيعه وفهرسه صحيحان، وأُعيدت نسخته. لا تعطيل للتحقق.
 - kernel hook فشل بسبب غياب /dev/stdin في devtmpfs الخاص بالسحابة. arch-chroot -N يجهز روابط أجهزة خاصة ويعالج السبب؛ أُضيف استدراك محدود لهذه الحالة في build-iso.sh. توليد initramfs مستمر، ثم تستأنف mkarchiso من نفس work directory.
 - سجلات مؤقتة: /tmp/9b7-iso-resume2.log و/tmp/9b7-initramfs-repair.log. لا تعد ISO جاهزًا قبل اكتمال الملف واختباره.
+
+- توليد initramfs نجح بوضع namespace؛ إعداد BIOS وUEFI نجح. Studio اجتاز GUI smoke داخل root الفعلي بحزم Arch؛ Hyprland --verify-config أعاد config ok تحت مستخدم غير root. حُددت ذاكرة SquashFS بـ512MiB لأن الافتراضي الكبير غير مناسب لمسار tmpfs، وجارٍ ضغط ISO.

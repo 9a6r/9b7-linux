@@ -23,7 +23,7 @@ cat >> "$profile/profiledef.sh" <<'PROFILE'
 iso_label="9B7_$(date -u +%Y%m%d)"
 iso_version="$(date -u +%Y.%m.%d)"
 bootmodes=('bios.syslinux' 'uefi.systemd-boot')
-airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M' '-processors' '2')
+airootfs_image_tool_options=('-comp' 'zstd' '-Xcompression-level' '15' '-b' '1M' '-processors' '2' '-mem' '512M')
 file_permissions["/etc/shadow"]="0:0:400"
 file_permissions["/etc/sudoers.d/90-9b7"]="0:0:440"
 unset 'file_permissions[/root/.automated_script.sh]'
