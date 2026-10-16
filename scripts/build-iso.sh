@@ -10,6 +10,10 @@ available=$(df --output=avail -k "$project" | tail -1)
 required=18000000
 [[ $edition == desktop ]] || required=55000000
 (( available >= required )) || { echo "Insufficient build space: need at least $required KiB free for $edition" >&2; exit 1; }
+if [[ -n $(git -C "$project" status --porcelain --untracked-files=normal) ]]; then
+    echo 'Commit or preserve source changes first so SOURCE-COMMIT identifies the actual build.' >&2
+    exit 1
+fi
 mkdir -p "$project/work" "$project/out"
 build=$(mktemp -d "$project/work/iso-$edition.XXXXXX")
 bash "$project/scripts/prepare-profile.sh" "$build/profile" "$edition"
@@ -17,6 +21,8 @@ bash "$project/scripts/prepare-profile.sh" "$build/profile" "$edition"
 [[ -f "$project/cache/packages/9b7.db.tar.gz" && -f "$project/cache/packages/builder.asc" ]] || {
     echo 'Run scripts/build-extra-packages.sh first' >&2; exit 1;
 }
+pacman-key --init
+pacman-key --populate archlinux
 pacman-key --add "$project/cache/packages/builder.asc"
 fingerprint=$(gpg --show-keys --with-colons "$project/cache/packages/builder.asc" | awk -F: '$1=="fpr" {print $10; exit}')
 pacman-key --lsign-key "$fingerprint"

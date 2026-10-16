@@ -41,6 +41,8 @@ docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-i
 
 لا تشغّل `build-extra-packages.sh` على نظامك اليومي: يُنشئ مستخدم بناء وصلاحية pacman داخل بيئة البناء المخصصة. لا تحذف توقيعات أو تستخدم `--skippgpcheck` لعلاج فشل تنزيل.
 
+في بيئة cloud ذات proxy بشهادة CA مُدارة، مرّر **الشهادة العامة الموثوقة التي توفرها المنصة** أثناء بناء الحاوية: `docker build --secret id=build_ca,src=/path/to/platform-ca.crt -t 9b7-builder -f scripts/builder.Dockerfile .`. لا تعطّل TLS. هذه الشهادة تخص أداة البناء ولا تُنسخ عمدًا إلى نظام اللاب النهائي.
+
 ## تشغيل البناء على GitHub
 
 `Actions → Build ISO → Run workflow` يبني `desktop` على GitHub runner أو `full` على self-hosted runner مناسب. مسار full مقصود أن يعمل على جهازك المخصص ذو مساحة كافية. لا تضع أسرارًا في workflow. النتيجة artifact خاصة بتشغيل Actions؛ لا تنشر Release تلقائيًا قبل اختبار الإقلاع والتراخيص.

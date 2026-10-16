@@ -11,8 +11,9 @@ Updated 2026-10-16. These results concern this development environment, not an I
 | n8n 2.43.6 | PASS | HTTP health plus imported `automation/n8n-demo.json`, CLI execution `status=success`, `finished=true`, expected output KPIs |
 | Metabase 0.64.1 | PASS | PostgreSQL metadata initialized, health=ok, actual sample query `SELECT COUNT(*) FROM ORDERS` returned 18760 |
 | Superset 6.1.0 | PASS | Initialization, authenticated login/API, stop/start with retained account |
-| Odoo / ERPNext | PENDING | Runtime checks in progress; configuration validation alone is insufficient |
-| Cassandra / PostgreSQL / Redis console | PENDING | SQLite verified; remaining engine integration checks not yet complete |
+| Odoo 18 | PASS | Created real database and authenticated user 9b7; fixed config readability |
+| ERPNext | IN PROGRESS | Runtime initialization not yet verified |
+| Cassandra / PostgreSQL / Redis console | PASS | Actual driver queries; revenue 39100 checked through PostgreSQL and Redis; Cassandra cluster query succeeded |
 | Local Ollama inference | PENDING | Agent orchestration tested with controlled generator; actual model inference is not yet verified |
 | Arch package installation / ISO generation | IN PROGRESS | Mirror access now returns HTTP 200; builder setup resumed. No ISO yet |
 | BIOS + UEFI live boot | NOT RUN | Requires generated ISO |

@@ -56,3 +56,13 @@
 - جُرّب توليد profile مقابل releng الرسمي في work/profile-validation؛ استُخدم Qt SVG renderer بدلاً من librsvg غير الموجود بالمضيف. هذا تحقق هيكلي فقط، وليس build أو boot.
 - أُضيفت وثائق عربية، GitHub Actions، دليل BIS، تراخيص، storage helper لقسم ext4 دون فرمتة، وlock لحزم Python.
 - تحديث الشبكة: فحص HTTPS جديد لمرايا Arch نجح (200)؛ manifest نموذج Ollama نجح. استُؤنف تجهيز Arch builder؛ لا تعتبر الشبكة محجوبة حالياً.
+
+## 2026-10-16 — المرحلة 4 (بعد طلب «كمل وركز»)
+
+- Odoo: كان ملف public config بصلاحية 0600 لا يقرأه uid داخل الحاوية؛ صُححت الصلاحيات، وأضيف التطبيع إلى setup-dev. أُنشئت قاعدة 9b7_validation فعلياً وتم الدخول بـ9b7 بنجاح.
+- Arch builder: الحظر الشبكي انتهى، لكن الحاوية احتاجت شهادة CA العامة التي توفرها المنصة. أُضيفت للـtrust store دون تعطيل TLS، ونجح تثبيت archiso وQEMU وأدوات البناء. Dockerfile يدعم شهادة البناء عبر build secret اختياري.
+- تحققت جميع أسماء حزم iso/packages.x86_64 من قواعد pacman الفعلية: لا حزم مفقودة.
+- PostgreSQL وRedis وCassandra: خدمات فعلية healthy؛ محولات التطبيق نفذت queries. تحقق KPI الإيراد 39100 عبر PostgreSQL وRedis. أُزيلت بيانات الاختبار الخاصة بنا بعد الانتهاء.
+- الحزم الإضافية: geomet بُني وتوقّع؛ Cassandra driver كشف dependency tomli فأُضيفت. أُصلح تهيئة pacman-key ومرور proxy عبر sudo داخل حاوية البناء. البناء مستمر.
+- حُفظت install_script وstart_skill في مسودة البيئة؛ الإعداد الجديد قابل لإعادة التنفيذ عبر scripts/setup-dev.sh. نشر البيئة منفصل ولم يُدّع إنجازه.
+- ERPNext قيد الاختبار. لا يوجد ISO بعد.

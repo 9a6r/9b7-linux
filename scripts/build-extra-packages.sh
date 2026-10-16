@@ -6,6 +6,7 @@ project=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 pacman -Syu --needed --noconfirm base-devel sudo git gnupg python python-build python-installer python-wheel python-setuptools jq
 id builder >/dev/null 2>&1 || useradd -m builder
 printf 'builder ALL=(ALL) NOPASSWD: /usr/bin/pacman\n' > /etc/sudoers.d/9b7-builder
+printf 'Defaults:builder env_keep += "http_proxy https_proxy HTTP_PROXY HTTPS_PROXY all_proxy ALL_PROXY no_proxy NO_PROXY"\n' >> /etc/sudoers.d/9b7-builder
 chmod 440 /etc/sudoers.d/9b7-builder
 mkdir -p "$project/cache/packages" "$project/cache/signing" "$project/cache/aur-build"
 chmod 700 "$project/cache/signing"
@@ -16,6 +17,8 @@ if ! runuser -u builder -- gpg --list-secret-keys --with-colons | grep -q '^sec:
 fi
 key=$(runuser -u builder -- gpg --list-secret-keys --with-colons | awk -F: '$1=="fpr" {print $10; exit}')
 runuser -u builder -- gpg --armor --export "$key" > "$project/cache/packages/builder.asc"
+pacman-key --init
+pacman-key --populate archlinux
 pacman-key --add "$project/cache/packages/builder.asc"
 pacman-key --lsign-key "$key"
 for package in python-geomet python-cassandra-driver vscodium-bin burpsuite obsidian; do
@@ -34,8 +37,20 @@ for package in python-geomet python-cassandra-driver vscodium-bin burpsuite obsi
         [[ $(git -c safe.directory="$directory" -C "$directory" rev-parse HEAD) == "$commit" ]]
     fi
     chown -R builder:builder "$directory"
-    (cd "$directory" && runuser -u builder -- env PKGDEST="$project/cache/packages" MAKEFLAGS=-j2 TERM=xterm \
-        makepkg --syncdeps --noconfirm --cleanbuild --clean --sign --key "$key")
+    mapfile -t expected < <(cd "$directory" && runuser -u builder -- env PKGDEST="$project/cache/packages" makepkg --packagelist)
+    reusable=true
+    (( ${#expected[@]} )) || reusable=false
+    for artifact in "${expected[@]}"; do
+        if [[ ! -f $artifact || ! -f $artifact.sig ]] || ! runuser -u builder -- gpg --verify "$artifact.sig" "$artifact" >/dev/null 2>&1; then
+            reusable=false
+        fi
+    done
+    if ! $reusable; then
+        (cd "$directory" && runuser -u builder -- env PKGDEST="$project/cache/packages" MAKEFLAGS=-j2 TERM=xterm \
+            makepkg --syncdeps --noconfirm --cleanbuild --clean --force --sign --key "$key")
+    else
+        echo "Reusing signed package outputs for $package"
+    fi
     if [[ $package == python-geomet ]]; then
         pacman -U --noconfirm "$project"/cache/packages/python-geomet-*.pkg.tar.zst
     fi
