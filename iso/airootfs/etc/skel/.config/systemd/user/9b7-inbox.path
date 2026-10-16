@@ -1,0 +1,10 @@
+[Unit]
+Description=Watch the 9b7 business CSV inbox
+
+[Path]
+PathChanged=%h/9b7-Inbox
+MakeDirectory=true
+Unit=9b7-inbox.service
+
+[Install]
+WantedBy=default.target

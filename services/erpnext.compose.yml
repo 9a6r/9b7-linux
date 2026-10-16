@@ -1,5 +1,5 @@
 # Adapted from frappe/frappe_docker pwd.yml (MIT). See docs/THIRD-PARTY.md.
-x-image: &image frappe/erpnext:v16.51.1
+x-image: &image frappe/erpnext:v16.51.1@sha256:32a3bd423f77b8bb63c5df95129a5f69a0bb9cc27a6e117d2623789d3a4836be
 x-volumes: &sites
   - sites:/home/frappe/frappe-bench/sites
   - logs:/home/frappe/frappe-bench/logs
@@ -13,7 +13,7 @@ x-app: &app
     create-site: {condition: service_completed_successfully}
 services:
   db:
-    image: mariadb:11.8
+    image: mariadb:11.8@sha256:93fc3fe333b6cdfb061425869c2c3a5bb2851c0c74dbebc2c940f024e7482d76
     environment:
       MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?Run 9b7-services first}
     command: [--character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci, --skip-character-set-client-handshake]
@@ -25,7 +25,7 @@ services:
       retries: 40
     mem_limit: 512m
   redis-cache:
-    image: redis:7.4-alpine
+    image: redis:7.4-alpine@sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
     mem_limit: 128m
     healthcheck:
       test: [CMD, redis-cli, ping]
@@ -33,7 +33,7 @@ services:
       timeout: 5s
       retries: 20
   redis-queue:
-    image: redis:7.4-alpine
+    image: redis:7.4-alpine@sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
     volumes: ["redis:/data"]
     command: [redis-server, --appendonly, "yes"]
     mem_limit: 128m

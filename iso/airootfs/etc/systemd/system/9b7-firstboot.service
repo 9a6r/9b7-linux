@@ -1,0 +1,13 @@
+[Unit]
+Description=Prepare the 9b7 graduation lab account
+After=systemd-sysusers.service
+Before=display-manager.service
+ConditionPathExists=!/var/lib/9b7/provisioned
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/9b7-firstboot
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target

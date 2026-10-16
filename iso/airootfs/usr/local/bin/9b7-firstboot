@@ -1,0 +1,18 @@
+#!/usr/bin/env bash
+set -euo pipefail
+if ! id 9b7 >/dev/null 2>&1; then
+    useradd --badname -m -u 1000 -U -s /bin/bash 9b7
+    printf '9b7:9b7\n' | chpasswd
+fi
+for group in wheel audio video storage input docker wireshark; do
+    if getent group "$group" >/dev/null; then
+        usermod -aG "$group" 9b7
+    fi
+done
+passwd -l root
+if [[ $(systemd-detect-virt) == oracle ]] || grep -qw '9b7.safe=1' /proc/cmdline; then
+    mkdir -p /etc/lightdm/lightdm.conf.d
+    printf '[Seat:*]\nuser-session=xfce\n' > /etc/lightdm/lightdm.conf.d/90-9b7-compat.conf
+fi
+mkdir -p /var/lib/9b7
+touch /var/lib/9b7/provisioned

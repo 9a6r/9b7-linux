@@ -99,17 +99,40 @@ def action(stack: str, operation: str, wait: bool = True) -> None:
         ensure_images(stack)
         subprocess.run(compose_command(stack, "up", "-d", "--wait", "--wait-timeout", "600"), check=True)
         if wait and CATALOG[stack]["port"]:
-            deadline = time.monotonic() + 180
+            deadline = time.monotonic() + 600
             while not healthy(stack):
                 if time.monotonic() >= deadline:
                     raise RuntimeError(f"{stack} did not pass its functional HTTP readiness check; inspect logs")
                 time.sleep(3)
+        if stack == "ai":
+            ensure_model()
     elif operation == "stop":
         subprocess.run(compose_command(stack, "down"), check=True)  # Named data volumes survive.
     elif operation == "status":
         subprocess.run(compose_command(stack, "ps", "-a"), check=True)
     else:
         subprocess.run(compose_command(stack, "logs", "--tail", "100"), check=True)
+
+
+def ensure_model() -> None:
+    from .agents import MODEL
+    check = subprocess.run(compose_command("ai", "exec", "-T", "ai", "ollama", "show", MODEL),
+                           stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    if check.returncode == 0:
+        return
+    archive = project_root() / "offline/models.tar"
+    if archive.exists():
+        expected = archive.with_name("models.sha256").read_text().split()[0]
+        with archive.open("rb") as stream:
+            if hashlib.file_digest(stream, "sha256").hexdigest() != expected:
+                raise ValueError("Offline model checksum mismatch")
+        with archive.open("rb") as stream:
+            subprocess.run(compose_command("ai", "exec", "-T", "ai", "tar", "-C", "/root/.ollama", "-xf", "-"),
+                           stdin=stream, check=True)
+    else:
+        subprocess.run(compose_command("ai", "exec", "-T", "ai", "ollama", "pull", MODEL), check=True)
+    subprocess.run(compose_command("ai", "exec", "-T", "ai", "ollama", "show", MODEL),
+                   stdout=subprocess.DEVNULL, check=True)
 
 
 def main(argv=None):

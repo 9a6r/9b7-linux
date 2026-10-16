@@ -1,6 +1,6 @@
 services:
   n8n:
-    image: n8nio/n8n:2.43.6
+    image: n8nio/n8n:2.43.6@sha256:371dd463f02e8c35a4bc5aaf9855fc4cfec1babab97e5a02a1e31923a2ec8f5a
     profiles: [n8n]
     ports: ["127.0.0.1:5678:5678"]
     environment:
@@ -16,7 +16,7 @@ services:
     mem_limit: 768m
 
   metabase-db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551
     profiles: [metabase]
     environment:
       POSTGRES_DB: metabase
@@ -30,7 +30,7 @@ services:
       retries: 30
     mem_limit: 256m
   metabase:
-    image: metabase/metabase:v0.64.1
+    image: metabase/metabase:v0.64.1@sha256:457e4e4235060e78e37eded886b883fe6d7ad75f53d89ebc20be68a6d2f161de
     profiles: [metabase]
     depends_on:
       metabase-db: {condition: service_healthy}
@@ -46,7 +46,7 @@ services:
     mem_limit: 1536m
 
   odoo-db:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551
     profiles: [odoo]
     environment:
       POSTGRES_DB: postgres
@@ -60,7 +60,7 @@ services:
       retries: 30
     mem_limit: 256m
   odoo:
-    image: odoo:18.0
+    image: odoo:18.0@sha256:eda24b114f322e1d0a7c61029a4a513bdb9155a6864948acb477a8b2bebd5343
     profiles: [odoo]
     depends_on:
       odoo-db: {condition: service_healthy}
@@ -75,7 +75,7 @@ services:
     mem_limit: 1536m
 
   superset-init:
-    image: apache/superset:6.1.0
+    image: apache/superset:6.1.0@sha256:8b0426ef41beba328549e45371ea181f1c6761a871f167565cdab33c76057fe1
     profiles: [superset]
     user: "superset"
     environment: &superset-env
@@ -90,7 +90,7 @@ services:
     command: [python, /app/pythonpath/9b7_init.py]
     mem_limit: 1536m
   superset:
-    image: apache/superset:6.1.0
+    image: apache/superset:6.1.0@sha256:8b0426ef41beba328549e45371ea181f1c6761a871f167565cdab33c76057fe1
     profiles: [superset]
     user: "superset"
     depends_on:
@@ -102,7 +102,7 @@ services:
     mem_limit: 2048m
 
   ai:
-    image: ollama/ollama:0.40.5
+    image: ollama/ollama:0.40.5@sha256:0e8ff22ff86b4718cfa886844062117af13b50eb5689cca78279778e15744980
     profiles: [ai]
     ports: ["127.0.0.1:11434:11434"]
     environment:
@@ -112,7 +112,7 @@ services:
     mem_limit: 2560m
 
   postgres:
-    image: postgres:16-alpine
+    image: postgres:16-alpine@sha256:1a66d744c1b459e13b05a8fca341da84cb63383e99ce262210efee5a319d4551
     profiles: [databases]
     ports: ["127.0.0.1:5432:5432"]
     environment:
@@ -127,7 +127,7 @@ services:
       retries: 30
     mem_limit: 256m
   cassandra:
-    image: cassandra:4.1
+    image: cassandra:4.1@sha256:b755310b1f5c8761a538eafe0b81326ed1fc4b8cd3da14d8d37609a9e4d73bd7
     profiles: [databases]
     ports: ["127.0.0.1:9042:9042"]
     environment:
@@ -142,7 +142,7 @@ services:
       retries: 20
     mem_limit: 2048m
   redis:
-    image: redis:7.4-alpine
+    image: redis:7.4-alpine@sha256:ca0acbb137c1dc3339c8b147a58fd6f42775d4599327b50e7b116c23de501af2
     profiles: [databases]
     ports: ["127.0.0.1:6379:6379"]
     volumes: ["lab-redis:/data"]

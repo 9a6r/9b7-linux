@@ -1,0 +1,14 @@
+{
+  "vscodium-bin": {
+    "repository": "https://github.com/archlinux/aur.git",
+    "commit": "d04471d2fba90dc9fc16d52be8e6f957061b5ab3"
+  },
+  "burpsuite": {
+    "repository": "https://github.com/archlinux/aur.git",
+    "commit": "684462004b406b395f3fdbe397c6951f60856820"
+  },
+  "obsidian": {
+    "repository": "https://github.com/archlinux/aur.git",
+    "commit": "d0c8c82505e395d6fb0a83a957d37851ca9e0efd"
+  }
+}

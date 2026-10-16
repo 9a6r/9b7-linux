@@ -1,0 +1,10 @@
+Window.SetBackgroundTopColor(0.063, 0.094, 0.125);
+Window.SetBackgroundBottomColor(0.094, 0.149, 0.188);
+title_image = Image.Text("9b7 / BIS", 0.44, 0.90, 0.71, 1, "Sans 40");
+title = Sprite(title_image);
+title.SetX(Window.GetWidth() / 2 - title_image.GetWidth() / 2);
+title.SetY(Window.GetHeight() / 2 - 50);
+message_image = Image.Text("Business data. Better decisions.", 0.67, 0.75, 0.77, 1, "Sans 14");
+message = Sprite(message_image);
+message.SetX(Window.GetWidth() / 2 - message_image.GetWidth() / 2);
+message.SetY(Window.GetHeight() / 2 + 24);

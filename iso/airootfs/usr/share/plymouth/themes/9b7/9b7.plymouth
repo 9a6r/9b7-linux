@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=9b7 BIS
+Description=9b7 Business Information Systems
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/9b7
+ScriptFile=/usr/share/plymouth/themes/9b7/9b7.script

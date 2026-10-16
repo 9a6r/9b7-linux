@@ -1,0 +1,24 @@
+---
+- name: Prepare a local 9b7 business lab
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  tasks:
+    - name: Ensure Docker is enabled on the installed 9b7 system
+      become: true
+      ansible.builtin.systemd_service:
+        name: docker
+        state: started
+        enabled: true
+    - name: Create the CSV inbox
+      ansible.builtin.file:
+        path: "{{ ansible_env.HOME }}/9b7-Inbox"
+        state: directory
+        mode: '0750'
+    - name: Enable original 9b7 Flow folder automation
+      ansible.builtin.systemd_service:
+        name: 9b7-inbox.path
+        scope: user
+        daemon_reload: true
+        state: started
+        enabled: true

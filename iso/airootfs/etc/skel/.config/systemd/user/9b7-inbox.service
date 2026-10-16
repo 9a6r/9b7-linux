@@ -1,0 +1,9 @@
+[Unit]
+Description=Import CSV files with audit history and per-run reports
+
+[Service]
+Type=oneshot
+Environment=PYTHONPATH=/opt/9b7
+ExecStart=/usr/bin/python -m nineb7.inbox
+NoNewPrivileges=true
+PrivateTmp=true

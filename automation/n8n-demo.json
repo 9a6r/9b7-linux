@@ -1,0 +1,69 @@
+{
+  "name": "9b7 BIS - KPI review demo",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual",
+      "name": "Start graduation demo",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "revenue",
+              "name": "revenue",
+              "value": 39100,
+              "type": "number"
+            },
+            {
+              "id": "profit",
+              "name": "profit",
+              "value": 22100,
+              "type": "number"
+            },
+            {
+              "id": "message",
+              "name": "next_action",
+              "value": "Import a real 9b7 Flow report before making a business decision.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "kpis",
+      "name": "BIS example KPIs",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        500,
+        300
+      ]
+    }
+  ],
+  "connections": {
+    "Start graduation demo": {
+      "main": [
+        [
+          {
+            "node": "BIS example KPIs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "active": false,
+  "id": "9b7BISDemo0000001"
+}
