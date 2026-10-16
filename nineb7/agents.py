@@ -9,7 +9,7 @@ import urllib.request
 MODEL = "qwen2.5:1.5b"
 ROLES = (
     ("analyst", "You are a BIS data analyst. Describe revenue, profit, margin and data quality. "
-     "Use only the supplied figures. State missing information. Never invent causes."),
+     "Use only the supplied figures. State missing information. Never invent causes, currency, or time periods."),
     ("operations", "You are a business operations planner. Propose three measurable next actions "
      "based on the data and analyst note. Do not execute anything or claim actions were executed."),
     ("reviewer", "You are a critical reviewer. Check previous notes against source figures. "
@@ -24,6 +24,7 @@ def analyze(report: dict, model: str = MODEL, generate=None) -> list[dict]:
     source = {key: report["kpis"][key] for key in ("orders", "revenue", "cost", "profit", "margin_percent")
               if key in report["kpis"]}
     source["rejected_rows"] = report.get("rejected", 0)
+    source["currency"] = "not specified; do not infer a currency"
     notes = []
     for role, system in ROLES:
         prompt = json.dumps({"source_metrics": source, "previous_notes": notes}, ensure_ascii=False)

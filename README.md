@@ -12,6 +12,8 @@
 
 المضمّن في خطة ISO: Firefox، VSCodium، Docker، DBeaver، Obsidian، Wireshark، Burp Community، Ansible، btop؛ وخدمات n8n، Apache Superset، Metabase، Odoo، ERPNext، PostgreSQL/Cassandra/Redis.
 
+![واجهة 9b7 BIS Studio بعد اختبار البيانات الفعلي](docs/images/studio.png)
+
 ## جرّب أدوات المشروع الآن
 
 ```bash

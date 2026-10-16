@@ -14,7 +14,7 @@ Updated 2026-10-16. These results concern this development environment, not an I
 | Odoo 18 | PASS | Created real database and authenticated user 9b7; fixed config readability |
 | ERPNext | BLOCKED IN NESTED RUNTIME | Images pulled; cloud cgroup v2 prevents nested container start. Validate in the booted VM |
 | Cassandra / PostgreSQL / Redis console | PASS | Actual driver queries; revenue 39100 checked through PostgreSQL and Redis; Cassandra cluster query succeeded |
-| Local Ollama inference | PENDING | Agent orchestration tested with controlled generator; actual model inference is not yet verified |
+| Local Ollama inference | PASS WITH QUALITY LIMITS | Real Ollama 0.40.5 + pinned Qwen 1.5B returned all three Arabic roles and correct demo KPIs. Small model invented a currency; prompt now explicitly forbids this, and human review remains required |
 | Extra Arch packages | PASS | Signed VSCodium, Obsidian, Burp, geomet, Cassandra 3.30.1-2 built; real Cassandra import on Arch/Python 3.14 |
 | Native archiso profile | PASS | Generated with installed releng and librsvg; ISO build/boot still pending |
 | Offline archive mechanism | PASS | Compressed Docker save/load, SHA256 and image ID, then real run with --pull never |
@@ -23,13 +23,13 @@ Updated 2026-10-16. These results concern this development environment, not an I
 | BIOS + UEFI live boot | NOT RUN | Requires generated ISO |
 | VirtualBox + laptop boot | NOT RUN | Requires generated ISO and target hardware |
 | Whole-disk installation + second boot | NOT RUN | Installer is not certified; first test must use a disposable virtual disk |
-| Full edition offline services | NOT RUN | Requires full verified bundle and sufficient persistent storage |
+| Full offline bundle | PASS | Ten digest-pinned compressed image archives and Qwen model verified; booted offline runtime still pending |
 
 ## Release checklist
 
 - [ ] `scripts/check.sh` and GUI smoke succeed on final commit.
 - [ ] AUR package builds complete with checksums/signatures; installed package versions recorded.
-- [ ] `full` bundle contains all declared image digests and verified local model archive.
+- [x] `full` bundle contains all declared image digests and verified local model archive.
 - [ ] `mkarchiso` completes, outputs ISO and SHA256, with no omitted requested component.
 - [ ] BIOS boot reaches greeter; login 9b7 succeeds; desktop, keyboard, networking, audio work.
 - [ ] UEFI boot reaches greeter with Secure Boot disabled.
