@@ -46,10 +46,6 @@ Pane {
                                config.PartialBlur == "false" &&
                                config.FormPosition == "right" &&
                                config.BackgroundImageHAlignment == "center"
-    Component.onCompleted: {
-        Orientation.getOrientation()
-        console.log('called orientation')
-    }
     Item {
         id: sizeHelper
 

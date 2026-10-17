@@ -87,23 +87,23 @@ mkdir -p "$root/etc/skel/.config/systemd/user/default.target.wants" "$root/etc/s
 ln -sf ../9b7-inbox.path "$root/etc/skel/.config/systemd/user/default.target.wants/9b7-inbox.path"
 cat > "$profile/syslinux/archiso_sys-linux.cfg" <<'BOOT'
 LABEL 9b7
-MENU LABEL 9b7 Linux - Live desktop
+MENU LABEL 9b7 - Live desktop
 LINUX /%INSTALL_DIR%/boot/%ARCH%/vmlinuz-linux
 INITRD /%INSTALL_DIR%/boot/%ARCH%/initramfs-linux.img
 APPEND archisobasedir=%INSTALL_DIR% archisosearchuuid=%ARCHISO_UUID% quiet splash cow_spacesize=4G %KERNEL_PARAMS%
 LABEL 9b7-safe
-MENU LABEL 9b7 Linux - Compatibility / VirtualBox (XFCE)
+MENU LABEL 9b7 - Compatibility / VirtualBox (XFCE)
 LINUX /%INSTALL_DIR%/boot/%ARCH%/vmlinuz-linux
 INITRD /%INSTALL_DIR%/boot/%ARCH%/initramfs-linux.img
 APPEND archisobasedir=%INSTALL_DIR% archisosearchuuid=%ARCHISO_UUID% 9b7.safe=1 cow_spacesize=4G %KERNEL_PARAMS%
 BOOT
 sed -i 's/^DEFAULT arch$/DEFAULT 9b7/; s/^TIMEOUT .*/TIMEOUT 80/' "$profile/syslinux/archiso_sys.cfg"
-sed -i 's/^MENU TITLE .*/MENU TITLE 9b7 Linux - BIS Workspace/' "$profile/syslinux/archiso_head.cfg"
+sed -i 's/^MENU TITLE .*/MENU TITLE 9b7 - BIS Workspace/' "$profile/syslinux/archiso_head.cfg"
 rsvg-convert -w 640 -h 480 -o "$profile/syslinux/splash.png" "$project/assets/wallpaper.svg"
 mkdir -p "$profile/efiboot/loader/entries"
 rm -f "$profile/efiboot/loader/entries/"*.conf
 cat > "$profile/efiboot/loader/entries/01-9b7.conf" <<'BOOT'
-title 9b7 Linux - Live desktop
+title 9b7 - Live desktop
 linux /%INSTALL_DIR%/boot/%ARCH%/vmlinuz-linux
 initrd /%INSTALL_DIR%/boot/%ARCH%/initramfs-linux.img
 options archisobasedir=%INSTALL_DIR% archisosearchuuid=%ARCHISO_UUID% quiet splash cow_spacesize=4G %KERNEL_PARAMS%

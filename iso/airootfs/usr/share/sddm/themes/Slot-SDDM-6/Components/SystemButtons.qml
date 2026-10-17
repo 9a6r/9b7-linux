@@ -12,7 +12,7 @@ RowLayout {
     readonly property var reboot: ["Reboot", config.TranslateReboot || textConstants.reboot, sddm.canReboot]
     readonly property var shutdown: ["Shutdown", config.TranslateShutdown || textConstants.shutdown, sddm.canPowerOff]
 
-    property Control exposedSession
+    property Item exposedSession
 
     Repeater {
 
@@ -20,6 +20,7 @@ RowLayout {
         model: [suspend, hibernate, reboot, shutdown]
 
         RoundButton {
+            id: powerButton
             text: modelData[1]
             font.pointSize: root.font.pointSize * 0.8
             Layout.alignment: Qt.AlignHCenter
@@ -44,42 +45,42 @@ RowLayout {
                 index == 0 ? sddm.suspend() : index == 1 ? sddm.hibernate() : index == 2 ? sddm.reboot() : sddm.powerOff()
             }
             KeyNavigation.up: exposedSession
-            KeyNavigation.left: parent.children[index-1]
+            KeyNavigation.left: index > 0 ? systemButtons.itemAt(index - 1) : null
 
             states: [
                 State {
                     name: "pressed"
-                    when: parent.children[index].down
+                    when: powerButton.down
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: powerButton
                         palette.buttonText: Qt.darker(root.palette.highlight, 1.1)
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: powerButton.background
                         border.color: Qt.darker(root.palette.highlight, 1.1)
                     }
                 },
                 State {
                     name: "hovered"
-                    when: parent.children[index].hovered
+                    when: powerButton.hovered
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: powerButton
                         palette.buttonText: Qt.lighter(root.palette.highlight, 1.1)
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: powerButton.background
                         border.color: Qt.lighter(root.palette.highlight, 1.1)
                     }
                 },
                 State {
                     name: "focused"
-                    when: parent.children[index].activeFocus
+                    when: powerButton.activeFocus
                     PropertyChanges {
-                        target: parent.children[index]
+                        target: powerButton
                         palette.buttonText: root.palette.highlight
                     }
                     PropertyChanges {
-                        target: parent.children[index].background
+                        target: powerButton.background
                         border.color: root.palette.highlight
                     }
                 }

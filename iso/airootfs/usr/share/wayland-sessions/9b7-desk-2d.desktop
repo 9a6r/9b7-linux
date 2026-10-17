@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=9b7 Linux · DEsk 2D Fallback
+Name=9b7 · DEsk 2D Fallback
 Comment=Software rendering for virtual machines and limited graphics
 Exec=/usr/local/bin/9b7-desk-session --2d
 TryExec=/usr/bin/desk

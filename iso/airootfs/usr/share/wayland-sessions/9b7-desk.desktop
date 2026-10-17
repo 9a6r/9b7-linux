@@ -1,5 +1,5 @@
 [Desktop Entry]
-Name=9b7 Linux · DEsk
+Name=9b7 · DEsk
 Comment=9b7 BIS workspace powered by DEsk (experimental beta)
 Exec=/usr/local/bin/9b7-desk-session
 TryExec=/usr/bin/desk

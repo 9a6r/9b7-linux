@@ -308,10 +308,11 @@ See docs/USER-GUIDE.ar.md and docs/HANDOFF.md in /opt/9b7.
 
 
 def main():
+    from .business_ui import BusinessStudio
     app = QApplication(sys.argv)
-    app.setStyle("Fusion")
-    app.setStyleSheet(STYLE)
-    window = Studio()
+    app.setApplicationName("Studio")
+    app.setDesktopFileName("9b7-studio")
+    window = BusinessStudio()
     window.show()
     return app.exec()
 

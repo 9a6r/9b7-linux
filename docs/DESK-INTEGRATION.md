@@ -64,3 +64,17 @@ Package/ISO build success is not a session test. Record actual boot/login,
 apps, lock/unlock, logout, notifications, network and audio in VALIDATION.md.
 Desktop must pass boot tests before rebuilding Full. VirtualBox and physical
 hardware are unverified until actually used.
+
+## Runtime compatibility corrections
+
+UEFI QEMU login screen displayed the original Slot artwork. Its own QML emitted
+undefined `Orientation`, `Control` type mismatches on session navigation and
+out-of-range system-button navigation. Minimal compatibility changes remove the
+nonexistent orientation call, type exposed focus targets as `Item`, and reference
+the actual power-button delegate rather than unrelated parent children. Original
+archive hashes remain unchanged in the provenance manifest; these source edits
+are explicit downstream GPLv3 modifications, not replacement artwork.
+
+The later user roadmap retains Hyprland permanently and names the distribution
+9b7. Earlier conditional-removal wording above is superseded by that decision.
+Korkhon cursor artwork is not distributed; any future selection is opt-in in DEsk.
