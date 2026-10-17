@@ -145,3 +145,6 @@
 - اختبار Qt كشف انهيارًا فعليًا في callbacks غير المرتبطة بـQObject في Studio.task؛ صُحح بتسليم النتائج إلى كائن على GUI thread. اختبار فعلي offscreen بعد الإصلاح نجح: حالة النظام، Flow بإيراد39100 وSQLite count8. اختبار المصدر19 وShellCheck/Compose7 نجح قبل آخر إصلاح وسيعاد قبل commit.
 - الأصل Full ISO محفوظ دون تعديل. أُغلقت VM اختبار التثبيت القديم لتوفير الذاكرة؛ QCOW2 الجزئي محفوظ ولم يكتمل تثبيته. cache/packages عاد مجلدًا داخل المشروع بدلاً من symlink /tmp ليراه builder.
 - الخطوة التالية: إنهاء تحديث native root بـSDDM/DEsk، توليد Desktop profile جديد مع إعادة استخدام الحزم المثبتة دون offline mount، إعادة initramfs ثم بناء Desktop وإقلاعه QEMU BIOS/UEFI. لم تُبن نسخة Desktop الجديدة بعد.
+
+- ec40636 مرفوع: native Desktop build في /tmp/9b7-iso-work/iso-desktop.0db3QJ، سجل work/desktop-build.log. إصلاح initramfs المدمج عالج غياب /dev/stdin؛ الضغط بدأ. أول ISO يحمل ec40636 لا يصلح للنشر النهائي قبل تصحيح صيغة drawer التي كشفها فحص parser (app/thing/panel)، وأسماء DBeaver/Obsidian الفعلية. سيستخدم أولًا لاختبارات الإقلاع، ثم يعاد ضغط Desktop فقط بعد الإصلاحات.
+- اختبارات GUI لكلا Studio وControl Center نجحت فعليًا. مسودة start_skill حُدّثت بالمسار الجديد واختبار Qt وشرط Desktop أولًا. اختبار صلاحية رفع مصغر بالاعتماد الافتراضي ما زال401؛ لم يعدل المسودة القديمة.

@@ -288,13 +288,14 @@ class Studio(QMainWindow):
 4. For AI: start Local AI, then analyze the report. A full offline edition includes the model.
 
 Linux username / password: 9b7 / 9b7
-Super+Enter terminal · Super+D launcher · Super+B Firefox
-Super+E file manager · Super+S Studio · Super+Q close · Super+L lock
-Super+1…9 workspaces · Super+Shift+1…9 move window
+DEsk: Super+Enter terminal · Super+D drawer · Super+A applications
+Super+C desktop settings · Super+N notifications · Super+L lock
+Alt+Shift switches English/Arabic. Studio and Control Center are in the drawer.
 
 Boot: choose Live, software-rendering compatibility, or existing OS.
 VirtualBox: EFI optional, VMSVGA, 128 MB video RAM, 4 GB system RAM, 2 CPUs.
-If Hyprland is unstable, choose XFCE in the login screen.
+DEsk uses 2D rendering in VMs. Select XFCE if graphics fail.
+Hyprland remains available during this experimental migration.
 Live changes are temporary. Use an installed disk for persistent projects and Docker data.
 
 App accounts: Superset 9b7/9b7; ERPNext Administrator/9b7.
