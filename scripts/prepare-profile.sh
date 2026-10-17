@@ -28,6 +28,11 @@ file_permissions["/etc/shadow"]="0:0:400"
 file_permissions["/etc/sudoers.d/90-9b7"]="0:0:440"
 unset 'file_permissions[/root/.automated_script.sh]'
 PROFILE
+# Desktop is the rapid test track; zstd 6 keeps rebuilds practical in CPU-only
+# cloud builders. Full retains the smaller level-15 archive.
+if [[ $edition == desktop ]]; then
+    sed -i "s/'15'/'6'/" "$profile/profiledef.sh"
+fi
 for script in "$root"/usr/local/bin/9b7-*; do
     chmod 755 "$script"
     printf 'file_permissions["%s"]="0:0:755"\n' "${script#"$root"}" >> "$profile/profiledef.sh"

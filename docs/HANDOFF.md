@@ -148,3 +148,4 @@
 
 - ec40636 مرفوع: native Desktop build في /tmp/9b7-iso-work/iso-desktop.0db3QJ، سجل work/desktop-build.log. إصلاح initramfs المدمج عالج غياب /dev/stdin؛ الضغط بدأ. أول ISO يحمل ec40636 لا يصلح للنشر النهائي قبل تصحيح صيغة drawer التي كشفها فحص parser (app/thing/panel)، وأسماء DBeaver/Obsidian الفعلية. سيستخدم أولًا لاختبارات الإقلاع، ثم يعاد ضغط Desktop فقط بعد الإصلاحات.
 - اختبارات GUI لكلا Studio وControl Center نجحت فعليًا. مسودة start_skill حُدّثت بالمسار الجديد واختبار Qt وشرط Desktop أولًا. اختبار صلاحية رفع مصغر بالاعتماد الافتراضي ما زال401؛ لم يعدل المسودة القديمة.
+- أثناء أول ضغط Desktop أُوقف mksquashfs قبل إنشاء ISO لتقليل وقت الاختبارات: Desktop يستخدم zstd6 بدل15، وFull يبقى15. لا ISO تجريبي سابق حُذف؛ الأصل Full محفوظ. سيُدمج تصحيح drawer ومساعدة Studio في native root قبل استئناف الضغط، ويسجل SOURCE-COMMIT الجديد.
