@@ -1,0 +1,17 @@
+[
+  {
+    "file": "codex-usage-widget.plasmoid",
+    "sha256": "46b4f9bb89630d65e1e4d0f1f36d96c3224bc00743504cb09f1a089821918107",
+    "bytes": 550639
+  },
+  {
+    "file": "claude-usage-widget.plasmoid",
+    "sha256": "dbcb7dad6c3d9b5c12662695e53c686cf661d39152e757c9236c4ae83b560714",
+    "bytes": 84036
+  },
+  {
+    "file": "Korkhon-2.0-Windows.zip",
+    "sha256": "caec8d5de5e2fbaf31d3ea8c23598a2ad94b1f8ae9500627777ca5e61878b094",
+    "bytes": 839335
+  }
+]
