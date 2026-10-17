@@ -112,3 +112,26 @@
 - `scripts/release-iso.py`: prepare يحسب7أجزاء1900MiB دون نسخ ISO؛ upload يحاول مرفقًا صغيرًا أولًا ويستأنف اعتمادًا على digest للخادم؛ verify ينزّل الأجزاء المنشورة دون توثيق ويقارن SHA الكلي والأجزاء. helpers Linux/Windows وmanifest جاهزة في work/release-delivery.
 - 19اختبارًا +ShellCheck وتكوين الخدمات السبعة نجحوا؛ اختبارات إضافية للتجميع الفعلي ورفض الجزء الناقص/المعدل وعدم الكتابة فوق ISO سابق. PowerShell على Windows لم يُنفذ هنا.
 - الأمر التالي للرفع بعد إصلاح التوثيق: `python3 scripts/release-iso.py upload --iso out/9b7-linux-2026.10.16-x86_64-full.iso`، ثم تحديث ملاحظات الإصدار، نشره كـprerelease، ثم `python3 scripts/release-iso.py verify` قبل إعلان توفر تنزيل متحقق منه.
+
+
+## 2026-10-17 — المرحلة 9: تصحيح التوافق ثم طلب الثيمات الأصلية
+
+**أولوية المستخدم الجديدة:** استخدام `SDDM.zip` الأصلي (ZIP يحتوي TAR باسم SDDM، ثم Slot-SDDM-6/QML/Qt6) و`plymouth theme.zip` الأصلي (arch-slider-and-glow). اختبار SDDM مع Hyprland/XFCE وخطة LightDM احتياطية؛ اختبار الأنيميشن وتسجيل الدخول في BIOS/UEFI مع صور، ثم **Desktop ISO أولًا؛ لا تعِد بناء Full قبل نجاح Desktop**.
+
+- بحثنا عن الأرشيفين في /workspace و/tmp ومساحات الملفات المشتركة والحاوية وتاريخ Git ومرفقات Release. لا توجد نسخة منهما أو معرف تنزيل مرفق في السياق الحالي. لا تستبدلهما بثيم من الإنترنت ولا تدّع دمجهما. المطلوب إعادة إرفاق الأرشيفين؛ لم نثبت SDDM أو نبدّل مدير الدخول قبل فحصهما.
+- عيب فعلي في LightDM: lightdm.conf الرئيسي يُقرأ بعد conf.d، فكان user-session=9b7-hyprland يُبطل 90-9b7-compat.conf. نُقل الافتراضي إلى 50-9b7-default.conf؛ parser الحقيقي أكد XFCE مع override وHyprland بدونه. أصلح wrapper الخاص بـHyprland لاستخدام D-Bus الخاص بـsystemd user عند وجوده، بدل إنشاء bus منفصل يكسر تفعيل بعض الخدمات.
+- اختبارات Python الـ19، ShellCheck وتكوين الخدمات السبعة نجحت بعد الإصلاح. التجميع ورفض الملفات المعدلة/المخرجات الموجودة نجحت أيضًا عبر PowerShell7 الحقيقي على Linux؛ Windows نفسه غير مختبر.
+- قدم المستخدم اعتماد رفع مؤقتًا؛ نجح رفع metadata والأجزاء01–04 من الأصل إلى **المسودة فقط**. أُوقف رفع الأصل بعد اكتشاف عيب التوافق. لم تُنشر Release مكتملة، ولا يجوز عرض المسودة كتنزيل صالح للتجميع؛ ينقصها03أجزاء. لا تحفظ التوكن في ملفات أو Git.
+- scripts/release-iso.py أصبح يدعم streaming لجزأين متوازيين دون نسخة مؤقتة1.9GiB، ويتحقق من digest الخادم. أُطلق اختبار رفع stream صغير، لكن مخرجه لم يُحفظ قبل تغير جلسة الأدوات؛ يلزم إعادة تحقق الرفع المتدفق قبل الاعتماد عليه. إعادة تنزيل النسخة الكبيرة كاملة لم تُنفذ.
+- الـISO الأصلي في out لم يتغير ولم يُحذف. لم يبدأ إعادة ضغط Full المصحح قبل وصول توجيه Desktop. ملف out/ORIGINAL-SOURCE-COMMIT يحفظ مرجع الأصل.
+
+### حالة الموارد عند الاستكمال
+
+- Arch builder: 9b7-builder. Native root: /tmp/9b7-iso-work/iso-full.WkF1GR/work/x86_64/airootfs (حوالي9GiB دون cache المكرر)؛ تصحيحات LightDM وwrapper مطبقة فيه فقط، لا في ISO الأصلي.
+- الأرشيفات offline محفوظة داخل ISO الأصلي. طابقت byte-for-byte الكاش قبل إزالة النسخة المكررة لتوفير القرص. squashfuse يركب ISO عند offset269162496 في /tmp/9b7-original-root؛ منه bind إلى /project/cache/offline وإلى native root/opt/9b7/offline. هذه mounts داخل الحاوية؛ المضيف يرى مجلد cache/offline فارغًا. إذا فقدت mounts أعد تركيب الأصل؛ لا تدّع ضياع محتوى الحزمة.
+- حزم AUR الموقعة محفوظة على المضيف في /tmp/9b7-preserved-packages؛ cache/packages symlink إليها. هذا المسار غير موجود داخل الحاوية الحالية؛ أعد إتاحته للحاوية إذا احتجت pacman المحلي. مفاتيح التوقيع محفوظة ولم تدخل Git.
+- اختبار التثبيت: QEMU TCG4GiB/2CPU، SSH2231 داخل builder، QMP /project/work/install-qmp.sock، القرص الفارغ80GiB في /tmp/9b7-install-test/disposable.qcow2. المثبت الحقيقي بدأ التقسيم والنسخ ثم أُوقف rsync بـSIGSTOP مؤقتًا لتوفير RAM أثناء تجهيز الإصلاح (PIDs1496,1499,1506 داخل الضيف، تحقق منها قبل استخدامها). النسخ **غير مكتمل**، ولا يوجد إقلاع قرص مثبت ناجح.
+- guest source هو ISO الأصلي؛ config LightDM وwrapper صُححا في Live، وconfig LightDM في target /mnt/9b7-install.pvzFqF. لا تخلط هذا الاختبار مع اعتماد ISO جديد. عند متابعة النسخ: ثبت تغيرات wrapper في target بعد rsync أيضًا، أو أعد اختبار تثبيت Desktop الجديد من البداية.
+- حصل التوقف مع بعض العمليات محفوظة عبر الحاوية؛ تحقق من حالتها. لا تفترض استمرار tool session IDs عبر الرسائل. يجب تحديث SOURCE-COMMIT ونسخ ملفات المشروع إلى root عند بناء أي ISO مصحح.
+
+- فحص لاحق في الضيف المعاد استخدامه: parser يعرض XFCE لكن تسجيل الدخول أعاد جلسة Hyprland السابقة؛ يلزم فحص تفضيل الجلسة المخزن/اختيار XFCE صراحة أو الإقلاع من Desktop جديد. لا تسجل نجاح دخول XFCE بعد. Hyprland يعمل بالـwrapper المعدل.

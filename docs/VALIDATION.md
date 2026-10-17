@@ -31,7 +31,7 @@ ISO: `9b7-linux-2026.10.16-x86_64-full.iso` (source `8e538d7130751eeec62af0ca893
 
 SHA256: `b84e6627fea5ad1c063930321f7df8d9e7a6e9a75a30378a79113f02a5a43bc3`.
 
-Draft `v0.1.0-rc1` created; asset uploads are blocked by HTTP401 from uploads.github.com, including a tiny metadata file. Repository API access and pushes succeed. No public download verification has passed yet. Windows assembly script has not run on Windows; Linux byte-for-byte assembly and rejection cases passed on test data.
+Draft `v0.1.0-rc1` contains metadata and original ISO parts01–04. User-supplied temporary upload credentials resolved the platform credential failure. Upload was paused after discovering the XFCE selection defect; the draft is incomplete and must not be advertised as downloadable. No complete public download verification has passed. Linux Bash and PowerShell7 assembly/rejection tests passed; Windows itself was not tested.
 
 The booted image logs an upstream systemd-loop attempt to dissect its CD-ROM as a partitioned disk (`No suitable partitions found`). The ISO itself mounts and the desktop works. This warning is recorded rather than reported as a clean systemd check.
 
@@ -53,3 +53,13 @@ The booted image logs an upstream systemd-loop attempt to dissect its CD-ROM as 
 - [ ] Confirm bundled software redistribution terms before a public binary release.
 
 Store large ISO/VM artifacts outside Git. Preserve concise evidence here, not logs containing authentication tokens or credentials.
+
+
+## Theme request and compatibility correction (17 October)
+
+- The supplied-theme archives `SDDM.zip` and `plymouth theme.zip` are not available in the current workspace, container, Git history or release assets. Original `Slot-SDDM-6` and `arch-slider-and-glow` extraction, licenses, QML imports, visual checks and login tests are **NOT RUN**. No replacement artwork has been substituted for this request.
+- User requires a tested **Desktop** ISO before another Full build. No new ISO for these themes has been built or published.
+- Actual LightDM parser exposed a configuration precedence defect: the main config overrode the compatibility drop-in. Moving the default session to `50-9b7-default.conf` makes the actual parser select XFCE with the compatibility file and Hyprland without it. The preserved original ISO predates this fix.
+- The live VM started whole-disk installation to a newly created, empty 80GiB QCOW2. Formatting and rsync started; copying is paused. Installation and second boot remain **UNVERIFIED**.
+
+- Reused-guest login still selected its previous Hyprland session despite the corrected parser default. Fresh-boot XFCE login and cached-session selection remain to be checked; parser success is not counted as a graphical XFCE pass.

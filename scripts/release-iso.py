@@ -1,13 +1,16 @@
 #!/usr/bin/env python3
 """Prepare, resume-upload, and independently verify split GitHub ISO releases."""
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 import datetime
 import hashlib
 import json
+import os
 from pathlib import Path
 import re
 import subprocess
 import urllib.request
+import urllib.parse
 
 CHUNK = 1900 * 1024**2  # GitHub limits each release asset to 2 GiB.
 BUFFER = 8 * 1024**2
@@ -15,6 +18,12 @@ BUFFER = 8 * 1024**2
 
 def gh(*args):
     return subprocess.check_output(['gh', *map(str, args)], text=True)
+
+
+def get_release(repo, tag):
+    # GitHub's /releases/tags endpoint returns 404 for unpublished draft tags.
+    url = json.loads(gh('release', 'view', tag, '--repo', repo, '--json', 'apiUrl'))['apiUrl']
+    return json.loads(gh('api', url))
 
 
 def prepare(iso, output, chunk_size=CHUNK):
@@ -86,7 +95,7 @@ def upload(iso, output, tag, repo):
     expected = iso.with_name(iso.name + '.sha256').read_text().split()[0]
     if manifest['sha256'] != expected or manifest['size'] != iso.stat().st_size:
         raise ValueError('Run prepare for this ISO first')
-    release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+    release = get_release(repo, tag)
     if not release['draft']:
         raise ValueError('Only draft releases can be uploaded; publish after validation')
     # Probe asset authorization before allocating a large temporary part.
@@ -95,34 +104,62 @@ def upload(iso, output, tag, repo):
     metadata += [iso.with_name(iso.name + '.sha256'), iso.with_name(iso.name + '.packages.txt'), iso.parent / 'SOURCE-COMMIT']
     gh('release', 'upload', tag, '--repo', repo, '--clobber', *metadata)
     assets = {a['name']: a for a in release['assets']}
-    with iso.open('rb') as source:
-        for part in manifest['parts']:
-            asset = assets.get(part['file'], {})
-            if asset.get('size') == part['size'] and asset.get('digest') == 'sha256:' + part['sha256']:
-                source.seek(part['size'], 1)
-                print('Verified existing asset:', part['file'], flush=True)
-                continue
-            destination = output / part['file']
-            digest = hashlib.sha256()
-            remaining = part['size']
-            with destination.open('wb') as target:
+    token = os.environ.get('GH_TOKEN') or gh('auth', 'token').strip()
+    upload_url = release['upload_url'].split('{')[0]
+    if urllib.parse.urlparse(upload_url).hostname != 'uploads.github.com':
+        raise ValueError('Unexpected GitHub upload host')
+
+    def upload_part(task):
+        part, offset = task
+        asset = assets.get(part['file'], {})
+        if asset.get('size') == part['size'] and asset.get('digest') == 'sha256:' + part['sha256']:
+            print('Verified existing asset:', part['file'], flush=True)
+            return
+        if asset.get('id'):
+            gh('api', '--method', 'DELETE', f"repos/{repo}/releases/assets/{asset['id']}")
+        digest = hashlib.sha256()
+
+        def body():
+            # A bounded stream avoids a second 1.9 GiB file on constrained builders.
+            with iso.open('rb') as source:
+                source.seek(offset)
+                remaining = part['size']
                 while remaining:
                     data = source.read(min(BUFFER, remaining))
                     if not data:
                         raise ValueError('Unexpected ISO EOF')
-                    target.write(data)
                     digest.update(data)
                     remaining -= len(data)
-            if digest.hexdigest() != part['sha256']:
-                raise ValueError('ISO part changed since prepare')
-            gh('release', 'upload', tag, '--repo', repo, '--clobber', destination)
-            destination.unlink()  # Only the temporary split part; original ISO is retained.
-            print('Uploaded:', part['file'], flush=True)
+                    yield data
+
+        request = urllib.request.Request(
+            upload_url + '?' + urllib.parse.urlencode({'name': part['file']}),
+            data=body(), method='POST', headers={
+                'Authorization': 'Bearer ' + token,
+                'Content-Type': 'application/octet-stream',
+                'Content-Length': str(part['size']),
+                'Accept': 'application/vnd.github+json',
+                'User-Agent': '9b7-verified-release-publisher',
+            })
+        with urllib.request.urlopen(request, timeout=900) as response:
+            uploaded = json.load(response)
+        if (digest.hexdigest() != part['sha256'] or uploaded['size'] != part['size']
+                or uploaded.get('digest') != 'sha256:' + part['sha256']):
+            raise ValueError('Uploaded part digest does not match prepared ISO: ' + part['file'])
+        print('Uploaded and server digest verified:', part['file'], flush=True)
+
+    tasks = []
+    offset = 0
+    for part in manifest['parts']:
+        tasks.append((part, offset))
+        offset += part['size']
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        list(executor.map(upload_part, tasks))
 
 
 def verify(output, tag, repo):
     manifest = json.loads((output / 'iso-parts.json').read_text())
-    release = json.loads(gh('api', f'repos/{repo}/releases/tags/{tag}'))
+    release = get_release(repo, tag)
     if release['draft']:
         raise ValueError('Publish as a prerelease before checking anonymous downloads')
     assets = {a['name']: a for a in release['assets']}

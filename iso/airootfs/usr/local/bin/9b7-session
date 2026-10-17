@@ -7,4 +7,9 @@ if grep -qw '9b7.safe=1' /proc/cmdline || [[ $(systemd-detect-virt) == oracle ]]
     export WLR_RENDERER_ALLOW_SOFTWARE=1
     export AQ_NO_MODIFIERS=1
 fi
+# Reuse the systemd user bus so portals can activate user services.
+if [[ -n ${XDG_RUNTIME_DIR:-} && -S "$XDG_RUNTIME_DIR/bus" ]]; then
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=$XDG_RUNTIME_DIR/bus"
+    exec Hyprland
+fi
 exec dbus-run-session Hyprland
