@@ -1,10 +1,10 @@
 # Validation evidence and release gates
 
-Updated 2026-10-16. These results concern this development environment, not an ISO boot certification.
+Updated 2026-10-17. QEMU live boot has now been tested. Hardware/VirtualBox and installed-system certification remain pending.
 
 | Check | Result | Evidence / limits |
 |---|---|---|
-| Core Flow + database + service tests | PASS | 15 tests executed; money precision, atomic rollback, duplicate/conflict behavior, HTML escaping, read-only SQLite, audit and private state |
+| Core Flow + database + service tests | PASS | 19 tests executed, including split-ISO roundtrip and corrupt/missing-part rejection; money precision, atomic rollback, duplicate/conflict behavior, HTML escaping, read-only SQLite, audit and private state |
 | Native Qt GUI | PASS | Offscreen real demo import, expected 8 orders, real SQLite query returning 4 products, screenshot |
 | Compose configuration | PASS | Seven selectable stacks parsed by Docker Compose v2.40.3 |
 | Shell syntax / ShellCheck | PASS | Current original shell scripts checked, warning severity |
@@ -16,23 +16,33 @@ Updated 2026-10-16. These results concern this development environment, not an I
 | Cassandra / PostgreSQL / Redis console | PASS | Actual driver queries; revenue 39100 checked through PostgreSQL and Redis; Cassandra cluster query succeeded |
 | Local Ollama inference | PASS WITH QUALITY LIMITS | Real Ollama 0.40.5 + pinned Qwen 1.5B returned all three Arabic roles and correct demo KPIs. Small model invented a currency; prompt now explicitly forbids this, and human review remains required |
 | Extra Arch packages | PASS | Signed VSCodium, Obsidian, Burp, geomet, Cassandra 3.30.1-2 built; real Cassandra import on Arch/Python 3.14 |
-| Native archiso profile | PASS | Generated with installed releng and librsvg; ISO build/boot still pending |
+| Native archiso profile | PASS | Generated with installed releng and librsvg; actual full ISO built and booted |
 | Offline archive mechanism | PASS | Compressed Docker save/load, SHA256 and image ID, then real run with --pull never |
-| Model download integrity | PASS | Pinned official Qwen manifest; all blob sizes and SHA256 verified; inference pending |
-| ISO generation | PENDING | No ISO yet |
-| BIOS + UEFI live boot | NOT RUN | Requires generated ISO |
-| VirtualBox + laptop boot | NOT RUN | Requires generated ISO and target hardware |
-| Whole-disk installation + second boot | NOT RUN | Installer is not certified; first test must use a disposable virtual disk |
+| Model download integrity | PASS | Pinned official Qwen manifest; all blob sizes and SHA256 verified; real native inference passed |
+| ISO generation and integrity | PASS | 12,352,876,544 bytes; SHA256 rechecked against sidecar; source 8e538d7 |
+| BIOS + UEFI live boot | PASS IN QEMU | 4GiB/2CPU TCG, LightDM, 9b7 login; UEFI Hyprland + Studio and Flow demo verified |
+| VirtualBox + laptop boot | NOT RUN | No VirtualBox or target hardware in this environment |
+| Whole-disk installation + second boot | NOT RUN | Disposable 80GiB QCOW2 test being prepared; no completed install yet |
 | Full offline bundle | PASS | Ten digest-pinned compressed image archives and Qwen model verified; booted offline runtime still pending |
+
+## Artifact and delivery
+
+ISO: `9b7-linux-2026.10.16-x86_64-full.iso` (source `8e538d7130751eeec62af0ca893ed3530bfbec89`).
+
+SHA256: `b84e6627fea5ad1c063930321f7df8d9e7a6e9a75a30378a79113f02a5a43bc3`.
+
+Draft `v0.1.0-rc1` created; asset uploads are blocked by HTTP401 from uploads.github.com, including a tiny metadata file. Repository API access and pushes succeed. No public download verification has passed yet. Windows assembly script has not run on Windows; Linux byte-for-byte assembly and rejection cases passed on test data.
+
+The booted image logs an upstream systemd-loop attempt to dissect its CD-ROM as a partitioned disk (`No suitable partitions found`). The ISO itself mounts and the desktop works. This warning is recorded rather than reported as a clean systemd check.
 
 ## Release checklist
 
 - [ ] `scripts/check.sh` and GUI smoke succeed on final commit.
-- [ ] AUR package builds complete with checksums/signatures; installed package versions recorded.
+- [x] AUR package builds complete with checksums/signatures; installed package versions recorded.
 - [x] `full` bundle contains all declared image digests and verified local model archive.
-- [ ] `mkarchiso` completes, outputs ISO and SHA256, with no omitted requested component.
+- [x] `mkarchiso` completes, outputs ISO and SHA256, with no omitted requested component.
 - [ ] BIOS boot reaches greeter; login 9b7 succeeds; desktop, keyboard, networking, audio work.
-- [ ] UEFI boot reaches greeter with Secure Boot disabled.
+- [x] UEFI boot reaches greeter with Secure Boot disabled.
 - [ ] Hyprland on supported physical GPU; XFCE compatibility in VirtualBox VMSVGA.
 - [ ] Firefox, VSCodium, Obsidian, Wireshark, Burp, Ansible and btop start.
 - [ ] Run Studio demo twice: still 8 orders; imported=0, duplicates=8 on second run.

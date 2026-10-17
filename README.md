@@ -2,7 +2,7 @@
 
 توزيعة Arch x86_64 مستهدفة للـUSB وVirtualBox، مع Hyprland وXFCE، وأدوات نظم معلومات الأعمال والذكاء الاصطناعي المحلي. الجهاز المستهدف **8GB RAM**؛ الخدمات الثقيلة تعمل عند الطلب.
 
-**الحالة الحالية: إصدار تطوير، وليس ISO نهائيًا مُختبر الإقلاع.** راجع [سجل التسليم](docs/HANDOFF.md) و[نتائج التحقق](docs/VALIDATION.md) قبل استكمال العمل. اسم المستخدم وكلمة مرور Linux الافتراضيان: **`9b7` / `9b7`**.
+**الحالة الحالية: ISO كامل بُني بحجم 11.5GiB واجتاز إقلاع BIOS وUEFI داخل QEMU؛ نشر ملفات التنزيل واختبار التثبيت ما زالا قيد الإكمال.** راجع [سجل التسليم](docs/HANDOFF.md) و[نتائج التحقق](docs/VALIDATION.md) قبل استكمال العمل. اسم المستخدم وكلمة مرور Linux الافتراضيان: **`9b7` / `9b7`**.
 
 ## ما صنعناه للمشروع
 
@@ -10,7 +10,7 @@
 - **9b7 Flow:** أداة أتمتة أصلية للاستيراد والتحقق وETL ومنع التكرار والتدقيق والتقارير، مع Inbox يعمل تلقائيًا.
 - **AI team:** محلل → مخطط عمليات → مراجع، عبر Ollama/Qwen محلي؛ اقتراحات دون تنفيذ أوامر ذاتي.
 
-المضمّن في خطة ISO: Firefox، VSCodium، Docker، DBeaver، Obsidian، Wireshark، Burp Community، Ansible، btop؛ وخدمات n8n، Apache Superset، Metabase، Odoo، ERPNext، PostgreSQL/Cassandra/Redis.
+المضمّن في ISO المبني: Firefox، VSCodium، Docker، DBeaver، Obsidian، Wireshark، Burp Community، Ansible، btop؛ وخدمات n8n، Apache Superset، Metabase، Odoo، ERPNext، PostgreSQL/Cassandra/Redis.
 
 ![واجهة 9b7 BIS Studio بعد اختبار البيانات الفعلي](docs/images/studio.png)
 

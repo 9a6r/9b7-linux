@@ -17,7 +17,7 @@
 
 ## الحالة الحالية
 
-التطبيقات الأصلية والخدمات قيد الاختبار. لم يُنتج ISO بعد. المستخدم أكد أن اللاب 8GB RAM؛ لا تُشغّل الخدمات الثقيلة مجتمعة.
+أُنتج ISO كامل 11.5GiB واجتاز BIOS وUEFI في QEMU TCG. التثبيت والنشر لم يكتمل تحققهما بعد؛ انظر آخر مرحلة أدناه. اللاب 8GB RAM؛ لا تُشغّل الخدمات الثقيلة مجتمعة.
 
 ## قواعد إكمال العمل
 
@@ -98,3 +98,17 @@
 - سجلات مؤقتة: /tmp/9b7-iso-resume2.log و/tmp/9b7-initramfs-repair.log. لا تعد ISO جاهزًا قبل اكتمال الملف واختباره.
 
 - توليد initramfs نجح بوضع namespace؛ إعداد BIOS وUEFI نجح. Studio اجتاز GUI smoke داخل root الفعلي بحزم Arch؛ Hyprland --verify-config أعاد config ok تحت مستخدم غير root. حُددت ذاكرة SquashFS بـ512MiB لأن الافتراضي الكبير غير مناسب لمسار tmpfs، وجارٍ ضغط ISO.
+
+
+## 2026-10-17 — المرحلة 8: ISO موجود واختبار الإقلاع الفعلي
+
+- الأصل محفوظ: `out/9b7-linux-2026.10.16-x86_64-full.iso`، الحجم الدقيق 12,352,876,544 بايت، مصدر البناء `8e538d7130751eeec62af0ca893ed3530bfbec89`.
+- SHA-256: `b84e6627fea5ad1c063930321f7df8d9e7a6e9a75a30378a79113f02a5a43bc3`. أُعيد حسابه مرتين في جلسة 17 أكتوبر وطابق الملف المحفوظ؛ التحضير يحسب بصمة كل جزء أيضًا.
+- QEMU TCG بلا KVM، 4096MiB و2 vCPU: UEFI وBIOS وصلا إلى LightDM. دخول 9b7/9b7 نجح. UEFI شغّل Hyprland وStudio فعليًا؛ صورتا الدليل في `docs/images/live-*.png`.
+- Flow داخل ISO المقلع: 8 orders، revenue=39100، profit=22100؛ إعادة الاستيراد inserted=0 / duplicates=8. استخدام RAM نحو780MiB قبل الخدمات.
+- يوجد تحذير systemd-loop عند محاولة تفسير أقسام CD-ROM؛ لا يمنع mount أو إقلاع Live. ليس ادعاء بأن كل وحدات systemd ناجحة. VirtualBox واللابتوب لم يُختبرا.
+- بدأ اختبار تثبيت إلى QCOW2 جديد فارغ80GiB فقط في `/tmp/9b7-install-test/disposable.qcow2` داخل builder؛ لا أقراص مضيف مرفقة. سجل النتيجة قبل اعتماد المثبت.
+- أُنشئت مسودة prerelease `v0.1.0-rc1`، release ID415499028. جميع محاولات رفع المرفقات، حتى41بايت، أعادت401 Bad credentials من uploads.github.com؛ API العادي وgit push يعملان. طلبنا تحديث ربط GitHub أو GH_TOKEN عبر إعدادات الأسرار، لا داخل المحادثة. **لا مرفقات منشورة حتى الآن.**
+- `scripts/release-iso.py`: prepare يحسب7أجزاء1900MiB دون نسخ ISO؛ upload يحاول مرفقًا صغيرًا أولًا ويستأنف اعتمادًا على digest للخادم؛ verify ينزّل الأجزاء المنشورة دون توثيق ويقارن SHA الكلي والأجزاء. helpers Linux/Windows وmanifest جاهزة في work/release-delivery.
+- 19اختبارًا +ShellCheck وتكوين الخدمات السبعة نجحوا؛ اختبارات إضافية للتجميع الفعلي ورفض الجزء الناقص/المعدل وعدم الكتابة فوق ISO سابق. PowerShell على Windows لم يُنفذ هنا.
+- الأمر التالي للرفع بعد إصلاح التوثيق: `python3 scripts/release-iso.py upload --iso out/9b7-linux-2026.10.16-x86_64-full.iso`، ثم تحديث ملاحظات الإصدار، نشره كـprerelease، ثم `python3 scripts/release-iso.py verify` قبل إعلان توفر تنزيل متحقق منه.
