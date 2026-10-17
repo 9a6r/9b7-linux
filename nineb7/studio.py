@@ -4,7 +4,7 @@ import json
 from pathlib import Path
 import subprocess
 import sys
-from PySide6.QtCore import QObject, QThread, Signal, Qt, QUrl
+from PySide6.QtCore import QObject, QThread, Signal, Slot, Qt, QUrl
 from PySide6.QtGui import QDesktopServices
 from PySide6.QtWidgets import (
     QApplication, QComboBox, QFileDialog, QGridLayout, QHBoxLayout, QLabel, QLineEdit,
@@ -41,6 +41,28 @@ class Worker(QObject):
             self.error.emit(str(exc))
 
 
+class TaskResult(QObject):
+    """Give Python callbacks a QObject receiver on the GUI thread."""
+    def __init__(self, owner, complete, thread, worker):
+        super().__init__(owner)
+        self.owner, self.complete = owner, complete
+        self.thread, self.worker = thread, worker
+
+    @Slot(object)
+    def done(self, result):
+        self.complete(result)
+
+    @Slot(str)
+    def error(self, message):
+        self.owner.show_error(message)
+
+    @Slot()
+    def finished(self):
+        self.owner.jobs.remove((self.thread, self.worker))
+        self.thread.deleteLater()
+        self.deleteLater()
+
+
 class Studio(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -74,14 +96,14 @@ class Studio(QMainWindow):
         thread = QThread(self)
         worker = Worker(function)
         worker.moveToThread(thread)
+        result = TaskResult(self, complete, thread, worker)
         thread.started.connect(worker.run)
-        worker.done.connect(complete)
+        worker.done.connect(result.done)
         worker.done.connect(thread.quit)
-        worker.error.connect(self.show_error)
+        worker.error.connect(result.error)
         worker.error.connect(thread.quit)
         thread.finished.connect(worker.deleteLater)
-        thread.finished.connect(lambda: self.jobs.remove((thread, worker)))
-        thread.finished.connect(thread.deleteLater)
+        thread.finished.connect(result.finished)
         self.jobs.append((thread, worker))
         thread.start()
 

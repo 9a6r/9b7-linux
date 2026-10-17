@@ -51,7 +51,7 @@ cat >> "$build/profile/pacman.conf" <<LOCALREPO
 SigLevel = Required DatabaseRequired
 Server = file://$project/cache/packages
 LOCALREPO
-printf 'vscodium-bin\nburpsuite\nobsidian-bin\npython-cassandra-driver\n' >> "$build/profile/packages.x86_64"
+printf 'vscodium-bin\nburpsuite\nobsidian-bin\npython-cassandra-driver\n9b7-desk\n' >> "$build/profile/packages.x86_64"
 if ! mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"; then
     root="$build/work/x86_64/airootfs"
     # Some container hosts expose a bare devtmpfs without /dev/stdin. Arch's

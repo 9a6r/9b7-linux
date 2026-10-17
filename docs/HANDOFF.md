@@ -135,3 +135,13 @@
 - حصل التوقف مع بعض العمليات محفوظة عبر الحاوية؛ تحقق من حالتها. لا تفترض استمرار tool session IDs عبر الرسائل. يجب تحديث SOURCE-COMMIT ونسخ ملفات المشروع إلى root عند بناء أي ISO مصحح.
 
 - فحص لاحق في الضيف المعاد استخدامه: parser يعرض XFCE لكن تسجيل الدخول أعاد جلسة Hyprland السابقة؛ يلزم فحص تفضيل الجلسة المخزن/اختيار XFCE صراحة أو الإقلاع من Desktop جديد. لا تسجل نجاح دخول XFCE بعد. Hyprland يعمل بالـwrapper المعدل.
+
+## 2026-10-17 — المرحلة 10: DEsk والثيمان الأصليان
+
+- وصل الأرشيفان مجددًا وفُكّا آمنًا؛ SDDM/SDDM هو TAR يحتوي Slot-SDDM-6. ملفات QML والرسوم أصلية؛ Plymouth arch-slider-and-glow الأصلي مدمج بترخيص MIT. لم يُنفذ أي install.sh خارجي. تفاصيل التراخيص والبصمات في docs/DESK-INTEGRATION.md وpackaging/*original-sha256.json.
+- DEsk v0.1.2/195435a (MIT) آخر إصدار لكنه **Beta وليس مستقرًا**. بُني على Arch مع wlroots0.18.3 خاص تحت /opt/9b7/desk-wlroots، دون إزالة Hyprland. حزمة موقعة 2.4MiB، اختبار Meson words 1/1 ناجح. تشغيل الجلسة الفعلي لم يُختبر بعد.
+- أضيف SDDM/Qt6 والثيم الأصلي، جلسة DEsk افتراضية وDEsk2D وXFCE احتياطي، وخيار رجوع LightDM من TTY. Plymouth يُختار قبل توليد initramfs. إعدادات/اختصارات DEsk الأصلية محفوظة، لوحة us/ara وAlt+Shift. واجهة DEsk العربية الكاملة غير متاحة upstream، وCairo يحتاج shaping/bidi؛ لا ندعي ترجمة مكتملة.
+- أضيف 9b7 Control Center مستقل يعيد استخدام وظائف Studio للخدمات/قواعد البيانات/الوكلاء/Flow، مع حالة النظام وأدوات الشبكة والصوت. بقي Studio مستقلًا. launchers وأيقونات ومكتبة DEsk أضيفت.
+- اختبار Qt كشف انهيارًا فعليًا في callbacks غير المرتبطة بـQObject في Studio.task؛ صُحح بتسليم النتائج إلى كائن على GUI thread. اختبار فعلي offscreen بعد الإصلاح نجح: حالة النظام، Flow بإيراد39100 وSQLite count8. اختبار المصدر19 وShellCheck/Compose7 نجح قبل آخر إصلاح وسيعاد قبل commit.
+- الأصل Full ISO محفوظ دون تعديل. أُغلقت VM اختبار التثبيت القديم لتوفير الذاكرة؛ QCOW2 الجزئي محفوظ ولم يكتمل تثبيته. cache/packages عاد مجلدًا داخل المشروع بدلاً من symlink /tmp ليراه builder.
+- الخطوة التالية: إنهاء تحديث native root بـSDDM/DEsk، توليد Desktop profile جديد مع إعادة استخدام الحزم المثبتة دون offline mount، إعادة initramfs ثم بناء Desktop وإقلاعه QEMU BIOS/UEFI. لم تُبن نسخة Desktop الجديدة بعد.

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Recovery from a TTY: sudo 9b7-display-manager lightdm
+set -euo pipefail
+[[ $EUID == 0 ]] || { echo 'Run with sudo from a text console (Ctrl+Alt+F3).' >&2; exit 1; }
+case "${1:-}" in
+    sddm|lightdm) manager=$1 ;;
+    *) echo 'Usage: sudo 9b7-display-manager sddm|lightdm' >&2; exit 2 ;;
+esac
+echo "Switching login manager to $manager; current graphical sessions will end."
+systemctl stop display-manager.service
+systemctl disable sddm.service lightdm.service
+systemctl enable --force "$manager.service"
+systemctl start "$manager.service"

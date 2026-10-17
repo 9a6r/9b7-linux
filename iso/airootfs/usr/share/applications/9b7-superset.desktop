@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Apache Superset · 9b7 Lab
+Comment=Manage the on-demand Apache Superset service
+Exec=9b7-control-center --services
+Icon=9b7-control-center
+Categories=Development;Database;

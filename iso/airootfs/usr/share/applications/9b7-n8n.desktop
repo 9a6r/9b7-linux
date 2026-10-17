@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=n8n · 9b7 Lab
+Comment=Manage the on-demand n8n service
+Exec=9b7-control-center --services
+Icon=9b7-control-center
+Categories=Development;Database;

@@ -1,0 +1,46 @@
+# DEsk is a beta; private wlroots preserves the system compositor packages.
+pkgname=9b7-desk
+pkgver=0.1.2
+pkgrel=1
+pkgdesc='DEsk Wayland desktop for the 9b7 experimental Desktop edition'
+arch=('x86_64')
+url='https://github.com/fyzugx/DEsk'
+license=('MIT')
+depends=('wayland' 'libxkbcommon' 'libinput' 'cairo' 'pixman' 'fontconfig'
+         'libdrm' 'libglvnd' 'mesa' 'libpulse' 'pam' 'libxcb' 'xcb-util-wm'
+         'seatd' 'libdisplay-info' 'libx11' 'xcb-util-renderutil' 'systemd-libs'
+         'xorg-xwayland' 'dbus' 'xdg-desktop-portal-gtk' 'xdg-desktop-portal-wlr'
+         'gsfonts' 'noto-fonts' 'libnotify' 'xdg-user-dirs' 'xdg-utils' 'python')
+makedepends=('meson' 'ninja' 'pkgconf' 'wayland-protocols' 'hwdata')
+_commit=195435a09b9343e49b12e8dd8838a6e579a9aaa4
+source=("desk-$pkgver.tar.gz::https://codeload.github.com/fyzugx/DEsk/tar.gz/$_commit"
+        'wlroots-0.18.3.tar.gz::https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.18.3/downloads/wlroots-0.18.3.tar.gz')
+sha256sums=('4c4fa1a82273db5eec749cdae4b0af6912fe4287dde742d34cbf130f0c222946'
+            '164a7c8bf9f8ae2c1fb00e7bddb6f08cad7e81b3eb35577b48483b1ac265a087')
+options=('!debug')
+
+build() {
+    meson setup wlr-build wlroots-0.18.3 --prefix=/opt/9b7/desk-wlroots --libdir=lib \
+        --buildtype=release -Dexamples=false -Dwerror=false -Dbackends=drm,libinput,x11 \
+        -Drenderers=gles2 -Dallocators=gbm -Dsession=enabled -Dxwayland=enabled \
+        -Dlibliftoff=disabled -Dcolor-management=disabled -Dxcb-errors=disabled \
+        -Dicon_directory=/usr/share/icons
+    meson compile -C wlr-build -j 2
+    DESTDIR="$srcdir/wlr-stage" meson install -C wlr-build
+    # Only the private dependency uses the staging prefix; other .pc files
+    # continue to resolve against the Arch builder.
+    sed -i "s|^prefix=.*|prefix=$srcdir/wlr-stage/opt/9b7/desk-wlroots|" \
+        "$srcdir/wlr-stage/opt/9b7/desk-wlroots/lib/pkgconfig/wlroots-0.18.pc"
+    PKG_CONFIG_PATH="$srcdir/wlr-stage/opt/9b7/desk-wlroots/lib/pkgconfig" \
+        meson setup desk-build "DEsk-$_commit" --prefix=/usr --buildtype=release \
+        -Dxwayland=enabled -Dpost=enabled -Dsound=enabled \
+        -Dc_link_args="-Wl,-rpath,/opt/9b7/desk-wlroots/lib"
+    meson compile -C desk-build -j 2
+}
+
+package() {
+    DESTDIR="$pkgdir" meson install -C wlr-build
+    DESTDIR="$pkgdir" meson install -C desk-build
+    install -Dm644 "DEsk-$_commit/LICENSE" "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+    install -Dm644 wlroots-0.18.3/LICENSE "$pkgdir/usr/share/licenses/$pkgname/wlroots-LICENSE"
+}

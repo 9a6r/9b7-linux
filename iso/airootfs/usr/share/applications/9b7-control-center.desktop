@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=9b7 Control Center
+Name[ar]=مركز تحكم 9b7
+Comment=System, services, databases and AI agents
+Exec=9b7-control-center
+Icon=9b7-control-center
+Categories=Settings;System;
+StartupNotify=true

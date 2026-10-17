@@ -47,13 +47,13 @@ ln -sf /usr/lib/systemd/system/NetworkManager.service "$root/etc/systemd/system/
 ln -sf /usr/lib/systemd/system/docker.service "$root/etc/systemd/system/multi-user.target.wants/docker.service"
 ln -sf /usr/lib/systemd/system/vboxservice.service "$root/etc/systemd/system/multi-user.target.wants/vboxservice.service"
 ln -sf /etc/systemd/system/9b7-firstboot.service "$root/etc/systemd/system/multi-user.target.wants/9b7-firstboot.service"
-ln -sf /usr/lib/systemd/system/lightdm.service "$root/etc/systemd/system/display-manager.service"
+ln -sf /usr/lib/systemd/system/sddm.service "$root/etc/systemd/system/display-manager.service"
 ln -sf /usr/lib/systemd/system/graphical.target "$root/etc/systemd/system/default.target"
 mkdir -p "$root/etc/NetworkManager/conf.d" "$root/etc/plymouth"
 printf '[main]\ndns=default\n' > "$root/etc/NetworkManager/conf.d/9b7.conf"
 rm -f "$root/etc/resolv.conf"
 ln -s /run/NetworkManager/resolv.conf "$root/etc/resolv.conf"
-printf '[Daemon]\nTheme=9b7\nShowDelay=0\n' > "$root/etc/plymouth/plymouthd.conf"
+printf '[Daemon]\nTheme=arch-slider-and-glow\nShowDelay=0\n' > "$root/etc/plymouth/plymouthd.conf"
 printf 'en_US.UTF-8 UTF-8\nar_EG.UTF-8 UTF-8\n' > "$root/etc/locale.gen"
 ln -sf /usr/share/zoneinfo/Africa/Cairo "$root/etc/localtime"
 mkdir -p "$root/opt/9b7" "$root/usr/share/backgrounds/9b7" "$root/usr/share/icons/hicolor/scalable/apps"
@@ -65,14 +65,15 @@ cp "$project/README.md" "$project/LICENSE" "$root/opt/9b7/"
 cp "$project/assets/wallpaper.svg" "$root/usr/share/backgrounds/9b7/"
 rsvg-convert -o "$root/usr/share/backgrounds/9b7/wallpaper.png" "$project/assets/wallpaper.svg"
 cp "$project/assets/9b7.svg" "$root/usr/share/icons/hicolor/scalable/apps/"
-for module in studio flow services agents; do
-    cat > "$root/usr/local/bin/9b7-$module" <<LAUNCHER
+for module in studio flow services agents control_center; do
+    command_name=${module//_/-}
+    cat > "$root/usr/local/bin/9b7-$command_name" <<LAUNCHER
 #!/usr/bin/env bash
 export PYTHONPATH=/opt/9b7
 exec /usr/bin/python -m nineb7.$module "\$@"
 LAUNCHER
-    chmod 755 "$root/usr/local/bin/9b7-$module"
-    printf 'file_permissions["/usr/local/bin/9b7-%s"]="0:0:755"\n' "$module" >> "$profile/profiledef.sh"
+    chmod 755 "$root/usr/local/bin/9b7-$command_name"
+    printf 'file_permissions["/usr/local/bin/9b7-%s"]="0:0:755"\n' "$command_name" >> "$profile/profiledef.sh"
 done
 for i in {1..9}; do
     printf 'bind = $mod, %s, workspace, %s\nbind = $mod SHIFT, %s, movetoworkspace, %s\n' "$i" "$i" "$i" "$i" >> "$root/etc/skel/.config/hypr/hyprland.conf"

@@ -10,9 +10,14 @@ for group in wheel audio video storage input docker wireshark; do
     fi
 done
 passwd -l root
-if [[ $(systemd-detect-virt) == oracle ]] || grep -qw '9b7.safe=1' /proc/cmdline; then
+session=/usr/share/wayland-sessions/9b7-desk.desktop
+if grep -qw '9b7.safe=1' /proc/cmdline; then
     mkdir -p /etc/lightdm/lightdm.conf.d
     printf '[Seat:*]\nuser-session=xfce\n' > /etc/lightdm/lightdm.conf.d/90-9b7-compat.conf
+    session=/usr/share/xsessions/xfce.desktop
 fi
+mkdir -p /var/lib/sddm
+printf '[Last]\nUser=9b7\nSession=%s\n' "$session" > /var/lib/sddm/state.conf
+chown -R sddm:sddm /var/lib/sddm
 mkdir -p /var/lib/9b7
 touch /var/lib/9b7/provisioned

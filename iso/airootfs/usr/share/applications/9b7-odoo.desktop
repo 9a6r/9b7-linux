@@ -1,0 +1,7 @@
+[Desktop Entry]
+Type=Application
+Name=Odoo · 9b7 Lab
+Comment=Manage the on-demand Odoo service
+Exec=9b7-control-center --services
+Icon=9b7-control-center
+Categories=Development;Database;

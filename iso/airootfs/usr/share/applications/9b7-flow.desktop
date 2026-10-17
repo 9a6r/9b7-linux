@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=9b7 Flow
+Name[ar]=أتمتة البيانات 9b7
+Comment=Auditable CSV automation, validation and business reports
+Exec=9b7-control-center --flow
+Icon=9b7-flow
+Categories=Office;Database;
+StartupNotify=true
