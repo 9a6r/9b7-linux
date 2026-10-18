@@ -176,3 +176,12 @@
 - 32اختبارPythonنجحوا، ShellCheckوتكوين7خدماتنجحوا؛ أصلحتSC2155فيwrapperDEsk. اختباراتQtالأربعةنجحت: legacyStudio/Flow،ControlCenter،BusinessStudioRTL/LTRوقاعدةحقيقية،AIHubتثبيتفعليلباينرياختباروإزالةوعرضusageفيGUIthread. لقطاتdocs/images/business-studio-ar.pngوai-hub.png. ليستصورمحاكاةتصميم.
 - صورUEFIالأصليةPlymouth/SDDMنُقلتإلىdocs/images. جلسةDEskالسابقةشغلتFirefox/Thunar/legacyStudio؛ 2Dfallbackمثبتبالسجل. NewBusinessStudioداخلDEskلميتحققإظهارهنهائيًا؛ الصورةالمحفوظةكانتFirefoxفوقه. لاتحسبذلكنجاحًا.
 - الخطوةالتالية: إصلاح/اختبارالمثبتالرسوميوهويةالتثبيت، ثمDesktopمصغرمعالأكوادالجديدةوQMLالمصحح؛ BIOS/UEFIوlock/logoutوXFCE/Hyprlandواختبارتثبيتوقرصثانٍ. VirtualBoxوالجهازالحقيقيلم يتوفرا. Releaseالأصليةمسودةناقصة؛ لا رابطتنزيلمكتملبعد.
+
+### المرحلة 13: المثبت الرسومي — اختبارات الحماية قبل القرص
+
+- أضيفتواجهةQtعربيةRTL/إنجليزيةLTR لاختيارالقرص(لااختيارتلقائي)،عرضالسعة/الموديل،اسممستخدموكلمةمرورجديدةوتكرارها،hostname/timezone/keyboard/session. تأكيدنهائييلزم`ERASE /dev/DEVICE`باسم القرصالفعلينفسه. القرصالـmounted/read-onlyغيرقابلللاختيار،وbackendيعيدالتحقققبلالكتابة.
+- backendPythonيستخدمrsyncمنSquashFSالأصلية،GRUBBIOS+UEFI،حسابًاخاصًاولايثبّت9b7/9b7كحسابدائم،يمررpasswordعبرstdinلـchpasswdفقط،ويمنعfirstbootمنإعادةحسابالتجربة. لاpasswordفيargvأوالسجلاتأوملفمؤقت. لاDualBoot. لايدعيفشلتثبيتأنه نجح.
+- UIيتحققبـsudoثميرسلالإعداداتعبرpipeبعدنجاحالمصادقة؛ لايفتحGUIكـroot. تأكيدالإزالةوالمصادقةخطوتانمنفصلتان. 35اختبارمصدرنجحواوShellCheck/Compose7،واختبارQtأثبتمنعقرصغيرمختار/تأكيدقرصآخرودعماللغتين. لمتُكتبأقراصفيهذهالاختبارات؛ التثبيتالحقيقيمازالقيدالاختبار.
+- /etc/os-releaseأضيفبالاسم9b7/ID_LIKE=arch؛ لاشعارجديد.
+- استعادةالحاويةاحتفظتبشبكةbridgeلاتصلللproxyبعدإعادةالسحابة. أمرcurlداخلsidecarبـnetworkhostوPIDnamespaceالـbuilderوملفاتهنجحمعTLS؛ لاغلقللتحقق. استُخدمتnamespaceمؤقتةلشبكةالبناءفقط. لايُنقلproxyأوشهاداتهإلىISOالمستخدم.
+- صلاحيةReleaseماتزال401عبرuploads.github.com،معنجاحgitpush. طلبناسرGH_UPLOAD_TOKENفيإعداداتالبيئةبصلاحيةContentsوليسداخلchat؛ حُفظاحتياجهلـapi.github.com وuploads.github.com. لاالمسودةالناقصةنُشرتولاتنزيلمكتملادُّعي.

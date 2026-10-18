@@ -70,7 +70,7 @@ cp "$project/README.md" "$project/LICENSE" "$root/opt/9b7/"
 cp "$project/assets/wallpaper.svg" "$root/usr/share/backgrounds/9b7/"
 rsvg-convert -o "$root/usr/share/backgrounds/9b7/wallpaper.png" "$project/assets/wallpaper.svg"
 cp "$project/assets/9b7.svg" "$root/usr/share/icons/hicolor/scalable/apps/"
-for module in studio flow services agents control_center ai_hub software_center; do
+for module in studio flow services agents control_center ai_hub software_center installer_ui; do
     command_name=${module//_/-}
     cat > "$root/usr/local/bin/9b7-$command_name" <<LAUNCHER
 #!/usr/bin/env bash

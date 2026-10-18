@@ -1,0 +1,8 @@
+NAME="9b7"
+PRETTY_NAME="9b7 (Experimental)"
+ID=9b7
+ID_LIKE=arch
+BUILD_ID=rolling
+HOME_URL="https://github.com/9a6r/9b7-linux"
+DOCUMENTATION_URL="https://github.com/9a6r/9b7-linux/tree/main/docs"
+BUG_REPORT_URL="https://github.com/9a6r/9b7-linux/issues"

@@ -23,6 +23,7 @@ dev = ["PyYAML==6.0.3", "shellcheck-py==0.11.0.1"]
 9b7-control-center = "nineb7.control_center:main"
 9b7-ai-hub = "nineb7.ai_hub:main"
 9b7-software-center = "nineb7.software_center:main"
+9b7-installer-ui = "nineb7.installer_ui:main"
 
 [tool.setuptools]
 packages = ["nineb7"]
