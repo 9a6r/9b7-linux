@@ -4,7 +4,9 @@
 
 **المسار الحالي: Desktop تجريبية أولًا، وFull مؤجلة حتى الموافقة بعد التجربة.** النسخة المحلية الجديدة تضم Studio وAI Hub والثيمين الأصليين؛ نتائج كل نسخة وحدود الاختبارات في [سجل التسليم](docs/HANDOFF.md).
 
-للبناء والتنزيل افتح [Desktop ISO - download preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml)، ثم **Run workflow → main → Run workflow**. بعد نجاح البناء وفحوص QEMU يظهر رابط Release في **Summary**. حمّل جميع أجزاء ISO مع `iso-parts.json` و`SHA256SUMS.parts` وسكربتَي `JOIN-WINDOWS.cmd` و`JOIN-WINDOWS.ps1`؛ ضعها في مجلد واحد وشغّل ملف CMD لتجميع ISO والتحقق من SHA-256. على Linux استخدم `JOIN-LINUX.sh`. لا تحتاج PAT أو إعداد سر GitHub لهذا الـWorkflow.
+للبناء والتنزيل افتح [Desktop ISO - download preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml)، ثم **Run workflow → main → Run workflow**. بعد البناء وفحص SHA-256 تُحفظ نسخة **`desktop-iso-experimental-…`** في **Artifacts** لمدة 3 أيام، قبل اختبارات الإقلاع. نزّل ZIP، فكّه، واختر ملف `.iso` في VirtualBox؛ لا تحتاج تقسيمًا أو JOIN لهذا التحميل. الرابط يظهر أيضًا في Summary. قد يبقى الملف متاحًا عند فشل اختبار لاحق؛ راجع نتائج BIOS وUEFI، ولا تعتبر وجود التحميل نجاحًا للإقلاع.
+
+بعد نجاح فحوص QEMU يظهر أيضًا رابط **Release** بأجزاء وبصمات وسكربتات JOIN للتنزيل العام. لا تحتاج PAT أو إعداد سر GitHub. لو تعمل من **Fork**، نفّذ **Sync fork → Update branch** أولًا ثم **Run workflow** جديدًا داخل نسختك؛ **Re-run jobs** على تشغيل قديم لن يستخدم الإصلاحات الجديدة.
 
 على جهازك ذي 8GB RAM، ابدأ بـ4096MB ومعالجين للـVM، وVMSVGA مع 3D مغلق. DEsk هي الجلسة الافتراضية؛ XFCE وHyprland محفوظتان. [تفاصيل التشغيل وحدود النسخة التجريبية](docs/BUILD.ar.md).
 

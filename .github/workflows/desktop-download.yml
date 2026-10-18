@@ -54,34 +54,74 @@ jobs:
           echo "iso=${images[0]}" >> "$GITHUB_OUTPUT"
           (cd out && sha256sum --check "$(basename "${images[0]}").sha256")
 
+      # Keep the checksum-verified build available for manual VirtualBox testing
+      # even when a later boot check fails. This is not a release certification.
+      - name: Save experimental Desktop ISO for VirtualBox
+        id: desktop_artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-iso-experimental-${{ github.run_number }}-${{ github.run_attempt }}
+          path: |
+            out/*-desktop.iso
+            out/*-desktop.iso.sha256
+            out/*-desktop.iso.packages.txt
+            out/*-desktop.iso.source-commit
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 3
+
+      - name: Show the experimental ISO download
+        if: ${{ !cancelled() && steps.desktop_artifact.outcome == 'success' }}
+        env:
+          ARTIFACT_URL: ${{ steps.desktop_artifact.outputs.artifact-url }}
+        run: |
+          printf '## Desktop ISO لتجربة VirtualBox\n\n[تحميل ملف ZIP الذي يحتوي ISO](%s)\n\nفك ZIP واختر ملف ISO في VirtualBox؛ لا تحتاج JOIN لهذا التحميل.\n\nالبناء وSHA-256 نجحا. نتيجة اختبارات الإقلاع أدناه مستقلة؛ هذه نسخة تجريبية وليست إصدارًا نهائيًا. التحميل محفوظ لمدة 3 أيام.\n' "$ARTIFACT_URL" >> "$GITHUB_STEP_SUMMARY"
+
       - name: BIOS boot, SDDM password login and desktop apps
+        id: bios
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         env:
           ISO: ${{ steps.image.outputs.iso }}
-        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode bios --output work/qemu-bios
+        # The root builder owns work/. Host-side tests write to the runner's
+        # own temporary directory; do not recursively chown the build root.
+        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode bios --output "$RUNNER_TEMP/9b7-boot/bios"
 
       - name: UEFI boot, SDDM password login and desktop apps
+        id: uefi
+        if: ${{ !cancelled() && steps.image.outcome == 'success' }}
         env:
           ISO: ${{ steps.image.outputs.iso }}
-        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode uefi --output work/qemu-uefi
+        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode uefi --output "$RUNNER_TEMP/9b7-boot/uefi"
+
+      - name: Report boot test outcomes
+        if: ${{ always() && steps.image.outcome == 'success' }}
+        env:
+          BIOS_RESULT: ${{ steps.bios.outcome }}
+          UEFI_RESULT: ${{ steps.uefi.outcome }}
+        run: |
+          printf '\n## نتائج اختبار الإقلاع\n\n| BIOS | UEFI |\n| --- | --- |\n| %s | %s |\n\nوجود ملف ISO للتحميل لا يعني نجاح الإقلاع؛ أي failure أو skipped يحتاج مراجعة السجل.\n' "$BIOS_RESULT" "$UEFI_RESULT" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Save boot screenshots and results
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: desktop-boot-evidence-${{ github.run_number }}
-          path: work/qemu-*/
+          path: ${{ runner.temp }}/9b7-boot/
           if-no-files-found: warn
           retention-days: 14
 
       - name: Publish verified experimental download
+        if: ${{ !cancelled() && steps.image.outcome == 'success' && steps.bios.outcome == 'success' && steps.uefi.outcome == 'success' }}
         env:
           GH_TOKEN: ${{ github.token }}
           ISO: ${{ steps.image.outputs.iso }}
           TAG: desktop-${{ github.run_number }}-${{ github.run_attempt }}
         run: |
           set -euo pipefail
-          python3 scripts/release-iso.py prepare --iso "$ISO" --output work/release-desktop
-          cat > work/desktop-release-notes.md <<EOF
+          release_files="$RUNNER_TEMP/9b7-release"
+          release_notes="$RUNNER_TEMP/desktop-release-notes.md"
+          python3 scripts/release-iso.py prepare --iso "$ISO" --output "$release_files"
+          cat > "$release_notes" <<EOF
           نسخة **9b7 Desktop تجريبية** لاختبارك في VirtualBox، وليست Full أو إصدارًا نهائيًا.
 
           حمّل جميع ملفات part مع iso-parts.json وSHA256SUMS.parts وسكربتات JOIN.
@@ -99,14 +139,14 @@ jobs:
 
           المصدر: $GITHUB_SHA
           EOF
-          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "9b7 Desktop preview $GITHUB_RUN_NUMBER" --notes-file work/desktop-release-notes.md
-          python3 scripts/release-iso.py upload --iso "$ISO" --output work/release-desktop --tag "$TAG" --repo "$GITHUB_REPOSITORY"
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "9b7 Desktop preview $GITHUB_RUN_NUMBER" --notes-file "$release_notes"
+          python3 scripts/release-iso.py upload --iso "$ISO" --output "$release_files" --tag "$TAG" --repo "$GITHUB_REPOSITORY"
           gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
-          if ! python3 scripts/release-iso.py verify --output work/release-desktop --tag "$TAG" --repo "$GITHUB_REPOSITORY"; then
+          if ! python3 scripts/release-iso.py verify --output "$release_files" --tag "$TAG" --repo "$GITHUB_REPOSITORY"; then
             gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=true
             exit 1
           fi
-          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" work/release-desktop/PUBLIC-DOWNLOAD-VERIFIED.json
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" "$release_files/PUBLIC-DOWNLOAD-VERIFIED.json"
           url=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)
           printf '## رابط تحميل Desktop التجريبية\n\n%s\n\nحمّل كل الأجزاء وسكربت JOIN المناسب. Full مؤجلة إلى ما بعد تجربتك.\n' "$url" >> "$GITHUB_STEP_SUMMARY"
 

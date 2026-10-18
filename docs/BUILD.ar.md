@@ -48,12 +48,14 @@ docker stop 9b7-local-builder
 ## تشغيل البناء على GitHub
 
 1. افتح [Desktop ISO - download preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml).
-2. اضغط **Run workflow**، اختر **main**، ثم شغّله. يستخدم Ubuntu runner و`GITHUB_TOKEN` التلقائي؛ لا يحتاج PAT ولا يبني Full.
-3. يبني الحزم وDesktop داخل حاوية Arch واحدة، ويتحقق من SHA-256، ثم يقلع ISO في QEMU بنمطَي BIOS وUEFI ويحاول الدخول بكلمة المرور عبر SDDM وبدء DEsk وFirefox وThunar وStudio. يحفظ صورًا وسجلات في artifact اسمه `desktop-boot-evidence-…` حتى عند فشل الاختبار.
+2. لو تستخدم Fork في حساب آخر: افتح المستودع الخاص بك واضغط **Sync fork → Update branch**. من Actions داخل نفس الـFork افتح Workflow ثم **Run workflow → main**. استخدم تشغيلًا جديدًا؛ **Re-run jobs** يستخدم commit التشغيل القديم. يستخدم Ubuntu runner و`GITHUB_TOKEN` التلقائي الخاص بالمستودع الجاري؛ لا يحتاج PAT ولا يبني Full.
+3. يبني الحزم وDesktop داخل حاوية Arch واحدة ويتحقق من SHA-256، ثم يحفظ **`desktop-iso-experimental-…`** في **Artifacts** لمدة **3 أيام**. هذا أسرع مسار لتجربة VirtualBox: نزّل ZIP، فكّه، واختر ملف `.iso`؛ لا تستخدم JOIN لهذه النسخة. معها ملف SHA-256 وقائمة الحزم ومرجع المصدر. بعدها يقلع ISO في QEMU بنمطَي BIOS وUEFI ويحاول الدخول عبر SDDM وبدء DEsk والتطبيقات. UEFI تعمل حتى لو فشل BIOS، ويظل الفشل ظاهرًا في نتيجة التشغيل. الصور والسجلات في `desktop-boot-evidence-…`، وحالة الاختبارين في Summary. ملفات الاختبار والنشر تُكتب في `RUNNER_TEMP` المملوك لمستخدم Actions، بعيدًا عن `work` الذي ينشئه builder بصلاحيات root.
 4. بعد نجاح الفحوص، ينشئ **prerelease تجريبية** ويرفع ISO بأجزاء أقل من 2GiB مع البصمات وسكربتات التجميع، ثم يعيد تنزيل الأجزاء للتحقق من مطابقتها للأصل. يظهر رابط Release في **Summary**. إذا فشل التحقق يعيدها إلى مسودة ولا يعلن نجاح التسليم.
 5. حمّل كل ملفات `.partNN` و`iso-parts.json` و`SHA256SUMS.parts` وملفات `JOIN`. ضعها في مجلد واحد به مساحة تكفي الأجزاء والـISO معًا. في Windows شغّل `JOIN-WINDOWS.cmd` مع وجود `JOIN-WINDOWS.ps1`، وفي Linux شغّل `bash JOIN-LINUX.sh`. لا تفك الأجزاء ببرنامج ZIP. السكربت يفحص البصمات ويترك ملف `.iso` الأصلي جاهزًا لاختياره في VirtualBox.
 
 الفحص الآلي يثبت بدء الجلسة والعمليات؛ صور Plymouth وSDDM تحتاج مراجعة بشرية، ولا يعادل اختبار التثبيت أو VirtualBox أو الصوت والأجهزة الحقيقية. إذا ظهر فشل في Actions، حمّل سجل الخطوة وملف evidence؛ لا تعتبر مجرد وجود ISO نجاحًا للاختبار.
+
+Artifact الخاصة بالـISO متاحة للتجربة اليدوية حتى لو فشل فحص QEMU لاحقًا، بشرط نجاح رفعها؛ هذا لا يحوّل الفشل إلى نجاح ولا ينشر Release معتمدة. تحتاج تسجيل الدخول إلى GitHub لتنزيل Artifacts. ملفات Release المقسمة متاحة بعد نجاح الاختبارين والتحقق من التنزيل. التشغيل القديم الذي انتهى قبل إضافة خطوة حفظ ISO لا يتيح استرجاع ملف لم يُرفع؛ يلزم تشغيل جديد بعد المزامنة.
 
 Workflow القديم **Build ISO** محفوظ لمسار artifact والبناء المتقدم. Full تحتاج self-hosted runner و`bundle-offline.py` قبل البناء؛ تجهيزها مؤجل حتى الموافقة بعد تجربة Desktop.
 

@@ -4,6 +4,15 @@
 - Current source: 35 Python tests, ShellCheck, seven Compose configs: PASS.
 - Desktop workflow YAML/expressions and embedded shell: actionlint 1.7.7 PASS.
   A complete GitHub-hosted build/publish run of the new workflow has NOT RUN.
+- User's Fork run (screenshot): ISO build and SHA-256 PASS; BIOS test did not
+  start because the runner could not create root-owned `work/qemu-bios`.
+  Fixed all host-side evidence/release paths to use `RUNNER_TEMP`.
+  Non-root permission reproduction: old path fails as reported; new BIOS/UEFI
+  paths save failure evidence; release manifest/JOIN preparation succeeds.
+  QEMU was deliberately stubbed to fail in this permission check, so this is
+  not a new boot result. Artifact upload now precedes boot tests, preserving a
+  clearly experimental download for manual VirtualBox testing; Release still
+  requires successful BIOS and UEFI checks. Hosted rerun remains pending.
 - Real offscreen Qt: legacy Studio, Control Center, new bilingual Business Studio,
   AI Hub verified test installation/removal and usage display: PASS.
 - Five official agent binary `--version` checks on host Linux: PASS; details in AI-HUB.md.
