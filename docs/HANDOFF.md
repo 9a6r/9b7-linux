@@ -191,3 +191,31 @@
 - المستخدمقدمتوكنرفعآخر؛ تمتمريرهلمهمةرفعطويلةالعمرعبرpromptمخفي،لافيargvأوملف. لاتكررطلبالتوكن. يفحصالرفعالصغيرأولًا؛السرمحفوظذاكرةالعمليةفقطوقديضيععندإيقافالبيئة. scripts/release-iso.pyيدعمGH_UPLOAD_TOKENوsidecarمرجعالمصدرالخاصبكلISO.
 
 - فحصrootقبلالضغطكشفأنcp -aحفظصلاحيات0700منملفاتالسحابةفي/etc و/usr؛ أُوقفالضغطقبلإنشاءISO،والأصلانلميتغيرا. أضيفapply-profile.shبـrsyncوصلاحياتmkarchisoوتطبيقfile_permissions؛ repackيرفضrootغيرقابلةللقراءة. /etc/os-releaseأصبحتoverrideعاديةمعاستعادةملفArchvendor. يعادالضغطبعدفحصتطبيقاتكمستخدمغيرroot.
+
+## 2026-10-18 — Desktop جديدة وتوقف اتصال البيئة
+
+- آخر commit مؤكد مرفوع إلى main: `507d24f2fdf3c34a8e326fa3f07925994d95e038`.
+- اكتمل `out/9b7-2026.10.18-x86_64-desktop.iso` (نحو3.9GiB) من هذا المرجع، مع package list و`.source-commit`. SHA256: `55915b7e75ec70f336eeb9500ef9574b2931b581a3bccca60dbedfae93e6439e`.
+- النسخة تحتوي Business Studio وAI Hub والمثبت الرسومي وتصحيحاتQML، مع kernel7.2.11 وNode26.12.0. دخلت BusinessStudio وAIHub فعليًا بوضعQt offscreen كمستخدمnobody داخلArch root بعدتصحيحالصلاحيات. تشغيلCLIsالخمسة اختُبرعلىالمضيف؛ محاولةفحصإضافيةداخلchrootتعطلتبقيدnamespace،ولاتحسباختبارArchناجحًا.
+- initramfs الجديد يحتويtheme/config/two-step.so وanimation-00/93 الأصليين. أُعيد بناءFATUEFI بالنواةوinitramfs الجديدين، وxorriso أثبتوجودمساريBIOS/UEFI. نجاحالإقلاعلهذهالنسخة **لم يتأكد بعد**.
+- بدأQEMUBIOS منISOالجديدة: socket=`work/preview-bios-qmp.sock`، SSH2233 (لميفعّلبعد)، صور`work/preview-bios-frames`، قرصQCOW2فارغ80GiBأنشئفقطفيbuilder`/tmp/9b7-iso-work/desktop-install-test.qcow2`. لااختبارتثبيتأُجري. احتمالضياعVM/tmpfsعنداستعادةالبيئة؛ تحققمنالواقعأولًا.
+- التوكنالمؤقتالجديدنجحفيuploadصغيرثمإزالةprobeمنمسودةFull. كانفيذاكرةعملية`work/publish-session.py` فقط، session63427؛ لايحفظالسكربتالتوكن. لايمكنالاعتمادعلىبقاءالجلسةبعدانقطاعالبيئة. Fulldraftباقيةناقصةولمننشرها.
+- **توجيهالمستخدمالأخير:** المطلوبالآنDesktopتجريبيةفقطوWorkflowعلىmainيعطيdownloadlinkلاختبارVirtualBox. Fullوالإصدارالنهائيمؤجلانحتىيجربويوافق. لاتوسّعالمهامأوتبنيFull.
+- ظهرت`environment_offline / Environment is not connected`منexec_command؛ حتىpwdفشل. طلبنااستئناف/إعادةتشغيلالبيئة. apply_patchمازاليستجيب، لذلكجهزنادونادعاءالاختبار: `scripts/qemu-desktop-smoke.py` و`.github/workflows/desktop-download.yml`، وأصلحناworkflowالقديمليستخدمحاويةواحدةمستمرة(مرحلةDEskتعتمدعلىمستخدمbuilderومفتاحأنشأتهماالمرحلةالسابقة).
+- التغييراتالثلاثةالأخيرة **لم تُراجع بأوامرأوتُختبرأوتُرفعإلىGitHub** بعدلانقطاعexec. WorkflowالجديدمقصودأنينشرprereleaseمقسمةبعدBIOS/UEFIlogintests،ويتراجعإلىdraftإذاverificationالعامةفشلت. يحتاجمراجعةوظيفيةوتشغيلحقيقيقبلالقولإنهيعمل.
+- التاليعندعودةالاتصال: `git status --short`؛ مراجعةالملفاتالجديدة،اختبار35+ShellCheck+YAML؛ إعادةإقلاعISOالجديدةوفحصالصوروالدخول؛ اختبارqemu-desktop-smoke.pyوتصحيحأيخطأ؛commit/pushللـworkflow،ثمrunworkflowأورفعISOالمختبرةبأجزائهاوverifyالتحميل. لا تعلن نجاحVirtualBox/تثبيت/قفل/صوتلمتنفذه.
+- مسارالتسليمالذيطلبهالمستخدمالآنهوGitHubActions؛ Workflowالجديديستخدم`github.token`التلقائيبصلاحيةcontents:write. لايحتاجإضافةPATإلىالمستودعأوطلبتوكنجديدمنالمستخدم. ركزعلىإنهاءورفعالـWorkflowوتشغيلهفورعودةالبيئة.
+
+## 2026-10-18 — استعادة الاتصال وإنهاء مسار Desktop على main
+
+- توجيه المستخدم النهائي: ارفع إصلاحات الملفات والـWorkflow إلى `main`، وهو سيشغّل بناء Desktop ويجربها في VirtualBox. لا بناء Full ولا إعلان إصدار نهائي.
+- عادت أوامر التنفيذ. حاوية `9b7-builder` كانت متوقفة؛ أُعيد تشغيلها، لكن tmpfs السابق فُقد. ملفات ISO الثلاثة باقية. Desktop الجديدة حجمها 4,108,910,592 بايت، وإعادة SHA-256 نجحت بالقيمة `55915b7e75ec70f336eeb9500ef9574b2931b581a3bccca60dbedfae93e6439e`.
+- أضيف Workflow يدوي `Desktop ISO - download preview`: حاوية Arch واحدة للحزم وDEsk وISO، فحص المصدر والبصمة، اختبارات QEMU BIOS/UEFI، حفظ الصور والسجلات، ثم prerelease مقسمة مع JOIN وSHA-256 وفحص تنزيل عام. يستخدم `github.token`، ولا يحتاج PAT من المستخدم. عند فشل اختبار الإقلاع لا ينشر، وعند فشل تنزيل المرفقات يعيد الإصدار إلى draft.
+- أُصلح Workflow القديم ودليل Docker ليستعملا حاوية مستمرة؛ الحاويات المنفصلة كانت تفقد مستخدم builder وإعداد الثقة بين مرحلتي الحزم وDEsk. فحص مصدر Workflow الجديد يستخدم Python النظام المطابق لحزمة python3-yaml.
+- `build-iso.sh` ينتج ملفًا داخل مجلد فريد، ولا ينتقي ISO قديمة من out أو يستبدل ملفًا بنفس الاسم. يكتب مرجع المصدر بجانب كل ISO. الأصلان القديمان والنسخة الجديدة لم يُحذفا.
+- تحقق المصدر: 35 unittest نجحت على المضيف وArch، وShellCheck داخل Arch نجح، وتكوين الخدمات السبع نجح. actionlint 1.7.7 مع ShellCheck نجح للـWorkflowين. تنزيل actionlint تحقق من checksum الرسمي. فحص Python syntax للسكربت الجديد نجح.
+- الإقلاع الفعلي للـISO الجديدة: QEMU TCG، معالجان، 4096MiB، std VGA، بلا قرص تثبيت. Plymouth الأصلية وSlot-SDDM-6 ظهرتا فعليًا في BIOS وUEFI. الصور في `docs/images/desktop-20261018/`، والبصمة والقيود في VALIDATION.
+- أول harness افترض SDDM على VT ثابت؛ دخل DEsk بدل TTY المقصود. أُوقف harness مع إبقاء الـVM للتشخيص، ثم أُصلح ليستخدم TTY6 ويكتشف VT الخاصة بالـgreeter. فحص جلسة UEFI المستأنف نجح: كلمة مرور SDDM، DEsk، وعمليات ونوافذ Firefox/Thunar/Business Studio مثبتة في سجل compositor. واجهة التحضير الأول لـDEsk بقيت أمام النوافذ؛ لا يعتبر هذا اختبارًا كاملًا لوظائف سطح المكتب.
+- BIOS دخل DEsk في المحاولة الأولى، لكن إعادة فحص آلي بعد restart SDDM فشلت في المصادقة بسبب حالة الإدخال أثناء التشخيص. لا تُحسب دورة BIOS آلية ناجحة. أضيف مسح حقل كلمة المرور واكتشاف display الفعلي وانتظار socket قبل بدء التطبيقات. **دورة كاملة جديدة للنسخة النهائية من harness لم تُنفّذ محليًا**؛ Workflow يفرضها قبل نشر التنزيل. لا تخفِ فشلًا ولا تتجاوز بوابة الاختبار.
+- GitHub-hosted build/upload/anonymous download للـWorkflow الجديد لم ينفذ في هذه الجلسة؛ المستخدم سيضغط Run workflow. لا يوجد رابط تنزيل جديد منشور حتى ينجح التشغيل. Full draft القديمة ناقصة كما هي.
+- الخطوة التالية للمستخدم: Actions → Desktop ISO - download preview → Run workflow → main. بعد النجاح رابط Release في Summary. لتحليل فشل محتمل: سجل الخطوة وartifact `desktop-boot-evidence-*`. VirtualBox والتثبيت والإقلاع الثاني والصوت والقفل غير مختبرة هنا.

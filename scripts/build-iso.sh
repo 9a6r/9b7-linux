@@ -29,6 +29,7 @@ if [[ -n $source_status ]]; then
     exit 1
 fi
 build=$(mktemp -d "$workspace/iso-$edition.XXXXXX")
+iso_output=$(mktemp -d "$project/out/.build-$edition.XXXXXX")
 cleanup() {
     if mountpoint -q "$build/profile/airootfs/opt/9b7/offline"; then
         umount "$build/profile/airootfs/opt/9b7/offline"
@@ -52,7 +53,7 @@ SigLevel = Required DatabaseRequired
 Server = file://$project/cache/packages
 LOCALREPO
 printf 'vscodium-bin\nburpsuite\nobsidian-bin\npython-cassandra-driver\n9b7-desk\n' >> "$build/profile/packages.x86_64"
-if ! mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"; then
+if ! mkarchiso -v -w "$build/work" -o "$iso_output" "$build/profile"; then
     root="$build/work/x86_64/airootfs"
     # Some container hosts expose a bare devtmpfs without /dev/stdin. Arch's
     # kernel hook then fails despite successful package installation. The
@@ -64,16 +65,19 @@ if ! mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"; then
         arch-chroot -N "$root" bash -c 'printf "%s\n" usr/lib/modules/*/vmlinuz | /usr/share/libalpm/scripts/mkinitcpio install'
         [[ -s "$root/boot/initramfs-linux.img" && -s "$root/boot/vmlinuz-linux" ]]
         rm -f "$build/work/base._copy_boot_out_of_pacstrap_dir" "$build/work/base._check_if_initramfs_has_ucode"
-        mkarchiso -v -w "$build/work" -o "$project/out" "$build/profile"
+        mkarchiso -v -w "$build/work" -o "$iso_output" "$build/profile"
     else
         exit 1
     fi
 fi
-image=$(find "$project/out" -maxdepth 1 -name '9b7-linux-*.iso' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
-[[ -s $image ]]
-mv "$image" "${image%.iso}-$edition.iso"
-image="${image%.iso}-$edition.iso"
+mapfile -t images < <(find "$iso_output" -maxdepth 1 -name '9b7-linux-*.iso' -type f)
+(( ${#images[@]} == 1 )) && [[ -s ${images[0]} ]]
+image="$project/out/$(basename "${images[0]}" .iso)-$edition.iso"
+[[ ! -e $image ]] || { echo "Preserving existing ISO: $image. New output: ${images[0]}" >&2; exit 1; }
+mv -n "${images[0]}" "$image"
+rmdir "$iso_output"
 (cd "$project/out" && sha256sum "$(basename "$image")" > "$(basename "$image").sha256")
 cp "$build/work/x86_64/airootfs/opt/9b7/SOURCE-COMMIT" "$project/out/SOURCE-COMMIT"
+cp "$build/work/x86_64/airootfs/opt/9b7/SOURCE-COMMIT" "$image.source-commit"
 pacman --root "$build/work/x86_64/airootfs" -Q > "$image.packages.txt"
 echo "Built $image — boot verification is still required before release."

@@ -2,7 +2,11 @@
 
 توزيعة Arch x86_64 مستهدفة للـUSB وVirtualBox، مع DEsk وHyprland وXFCE، وأدوات نظم معلومات الأعمال والذكاء الاصطناعي المحلي. الجهاز المستهدف **8GB RAM**؛ الخدمات الثقيلة تعمل عند الطلب.
 
-**الحالة الحالية: Desktop تجريبي مع DEsk والثيمين الأصليين بُني، ودخول UEFI نجح في QEMU. نواة Studio الجديدة وAI Hub اجتازا اختبارات المصدر والواجهة ولم يدخلا ISO منشورًا بعد.**
+**المسار الحالي: Desktop تجريبية أولًا، وFull مؤجلة حتى الموافقة بعد التجربة.** النسخة المحلية الجديدة تضم Studio وAI Hub والثيمين الأصليين؛ نتائج كل نسخة وحدود الاختبارات في [سجل التسليم](docs/HANDOFF.md).
+
+للبناء والتنزيل افتح [Desktop ISO - download preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml)، ثم **Run workflow → main → Run workflow**. بعد نجاح البناء وفحوص QEMU يظهر رابط Release في **Summary**. حمّل جميع أجزاء ISO مع `iso-parts.json` و`SHA256SUMS.parts` وسكربتَي `JOIN-WINDOWS.cmd` و`JOIN-WINDOWS.ps1`؛ ضعها في مجلد واحد وشغّل ملف CMD لتجميع ISO والتحقق من SHA-256. على Linux استخدم `JOIN-LINUX.sh`. لا تحتاج PAT أو إعداد سر GitHub لهذا الـWorkflow.
+
+على جهازك ذي 8GB RAM، ابدأ بـ4096MB ومعالجين للـVM، وVMSVGA مع 3D مغلق. DEsk هي الجلسة الافتراضية؛ XFCE وHyprland محفوظتان. [تفاصيل التشغيل وحدود النسخة التجريبية](docs/BUILD.ar.md).
 
 الأصل المحفوظ: ISO كامل بُني بحجم 11.5GiB واجتاز إقلاع BIOS وUEFI داخل QEMU؛ نشر ملفات التنزيل واختبار التثبيت ما زالا قيد الإكمال. راجع [سجل التسليم](docs/HANDOFF.md) و[نتائج التحقق](docs/VALIDATION.md) قبل استكمال العمل. اسم المستخدم وكلمة مرور Linux الافتراضيان: **`9b7` / `9b7`**.
 

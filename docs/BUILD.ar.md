@@ -25,21 +25,20 @@
 
 ```bash
 docker build -t 9b7-builder -f scripts/builder.Dockerfile .
-docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-extra-packages.sh
-docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-desk-package.sh
-# يحتاج Docker وPython على المضيف؛ هذا يحفظ صور الخدمات والنموذج في cache/offline.
-python3 scripts/bundle-offline.py
-docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-iso.sh full
+docker run --detach --name 9b7-local-builder --privileged -v "$PWD:/project" 9b7-builder sleep infinity
+docker exec 9b7-local-builder bash scripts/build-extra-packages.sh
+docker exec 9b7-local-builder bash scripts/build-desk-package.sh
+docker exec 9b7-local-builder bash scripts/build-iso.sh desktop
 ```
 
 صور Docker تُضغط مباشرة عند التصدير، ونموذج Qwen يُجلب من manifest مثبت وتُراجع بصمات كل ملف. يمكن إضافة `--remove-exported` إلى bundle-offline على **Docker مخصص للبناء فقط** لحذف الصور بعد تصديرها؛ لا تستخدمه على مخزن خدماتك اليومية. يحتاج السكربت Python مع PyYAML وDocker Compose وgzip.
 
 النتيجة في `out/`: ISO، SHA256، قائمة حزم، ومرجع الكود. حزم Arch تُتحقق بتوقيعاتها؛ الحزم الإضافية بمراجع AUR مثبتة، checksums مصادر، وتوقيع مفتاح بناء محلي. المفتاح الخاص يبقى في `cache/signing` ولا يدخل Git أو ISO.
 
-لبناء نسخة اختبار دون صور الخدمات:
+احتفظ بنفس الحاوية بين المراحل: بناء DEsk يعتمد على مستخدم البناء ومفتاح الثقة اللذين أنشأتهما مرحلة الحزم. بعد حفظ النتائج يمكن إيقاف حاوية البناء:
 
 ```bash
-docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-iso.sh desktop
+docker stop 9b7-local-builder
 ```
 
 لا تشغّل `build-extra-packages.sh` على نظامك اليومي: يُنشئ مستخدم بناء وصلاحية pacman داخل بيئة البناء المخصصة. لا تحذف توقيعات أو تستخدم `--skippgpcheck` لعلاج فشل تنزيل.
@@ -48,14 +47,22 @@ docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-i
 
 ## تشغيل البناء على GitHub
 
-`Actions → Build ISO → Run workflow` يبني `desktop` على GitHub runner أو `full` على self-hosted runner مناسب. مسار full مقصود أن يعمل على جهازك المخصص ذو مساحة كافية. لا تضع أسرارًا في workflow. النتيجة artifact خاصة بتشغيل Actions؛ لا تنشر Release تلقائيًا قبل اختبار الإقلاع والتراخيص.
+1. افتح [Desktop ISO - download preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml).
+2. اضغط **Run workflow**، اختر **main**، ثم شغّله. يستخدم Ubuntu runner و`GITHUB_TOKEN` التلقائي؛ لا يحتاج PAT ولا يبني Full.
+3. يبني الحزم وDesktop داخل حاوية Arch واحدة، ويتحقق من SHA-256، ثم يقلع ISO في QEMU بنمطَي BIOS وUEFI ويحاول الدخول بكلمة المرور عبر SDDM وبدء DEsk وFirefox وThunar وStudio. يحفظ صورًا وسجلات في artifact اسمه `desktop-boot-evidence-…` حتى عند فشل الاختبار.
+4. بعد نجاح الفحوص، ينشئ **prerelease تجريبية** ويرفع ISO بأجزاء أقل من 2GiB مع البصمات وسكربتات التجميع، ثم يعيد تنزيل الأجزاء للتحقق من مطابقتها للأصل. يظهر رابط Release في **Summary**. إذا فشل التحقق يعيدها إلى مسودة ولا يعلن نجاح التسليم.
+5. حمّل كل ملفات `.partNN` و`iso-parts.json` و`SHA256SUMS.parts` وملفات `JOIN`. ضعها في مجلد واحد به مساحة تكفي الأجزاء والـISO معًا. في Windows شغّل `JOIN-WINDOWS.cmd` مع وجود `JOIN-WINDOWS.ps1`، وفي Linux شغّل `bash JOIN-LINUX.sh`. لا تفك الأجزاء ببرنامج ZIP. السكربت يفحص البصمات ويترك ملف `.iso` الأصلي جاهزًا لاختياره في VirtualBox.
+
+الفحص الآلي يثبت بدء الجلسة والعمليات؛ صور Plymouth وSDDM تحتاج مراجعة بشرية، ولا يعادل اختبار التثبيت أو VirtualBox أو الصوت والأجهزة الحقيقية. إذا ظهر فشل في Actions، حمّل سجل الخطوة وملف evidence؛ لا تعتبر مجرد وجود ISO نجاحًا للاختبار.
+
+Workflow القديم **Build ISO** محفوظ لمسار artifact والبناء المتقدم. Full تحتاج self-hosted runner و`bundle-offline.py` قبل البناء؛ تجهيزها مؤجل حتى الموافقة بعد تجربة Desktop.
 
 ## VirtualBox
 
 1. أنشئ جهاز Linux / Arch Linux 64-bit، ذاكرة 4096MB، معالجين، VMSVGA، ذاكرة فيديو 128MB، واترك 3D acceleration مغلقًا كبداية.
 2. أنشئ قرص VDI ديناميكي 64GB على الأقل؛ 80GB أنسب للخدمات الكاملة.
 3. اختر ملف ISO كقرص optical. UEFI وLegacy BIOS مدعومان في profile، وكلاهما يحتاج اختبارًا فعليًا قبل الإصدار.
-4. اختر **Compatibility / XFCE**. شاشة الدخول: `9b7` / `9b7`.
+4. اختر **Live desktop** لتجربة DEsk؛ عند مشكلة الرسوميات اختر **Compatibility / XFCE**. شاشة الدخول: `9b7` / `9b7`.
 5. استخدم **Install 9b7** لتثبيت نفس التخصيصات على الـVDI. بعد نجاح التثبيت أخرج الـISO وأعد التشغيل.
 6. خصص 5–6GB للـVM إذا كنت ستعرض ERPNext، وأغلق البرامج الثقيلة على المضيف. لا تتوقع ERPNext وكل أدوات BI معًا على لاب 8GB.
 

@@ -1,0 +1,20 @@
+{
+  "mode": "uefi",
+  "acceleration": "tcg,thread=multi",
+  "memory_mib": 4096,
+  "sddm_password_login": true,
+  "desk_session": true,
+  "application_processes": [
+    "Firefox",
+    "Thunar",
+    "9b7 Studio"
+  ],
+  "screenshots": "captured; review visually",
+  "not_tested": [
+    "VirtualBox",
+    "hardware",
+    "installation",
+    "audio output",
+    "cloud AI authentication"
+  ]
+}

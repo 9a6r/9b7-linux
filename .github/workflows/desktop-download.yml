@@ -1,0 +1,115 @@
+name: Desktop ISO - download preview
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: desktop-preview
+  cancel-in-progress: false
+
+jobs:
+  desktop:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Prepare this disposable GitHub runner
+        run: |
+          # These are unused SDKs on GitHub's disposable VM, never a user host.
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /opt/hostedtoolcache/CodeQL
+          sudo apt-get update
+          sudo apt-get install -y qemu-system-x86 ovmf sshpass shellcheck python3-yaml
+          df -h .
+          free -h
+
+      - name: Validate source
+        run: |
+          # Use the distro Python that owns the python3-yaml dependency above.
+          export PATH="/usr/bin:/bin:$PATH"
+          bash scripts/check.sh
+
+      - name: Start one persistent isolated Arch builder
+        run: |
+          docker build -t 9b7-builder -f scripts/builder.Dockerfile .
+          docker run --detach --name 9b7-ci-builder --privileged -v "$PWD:/project" 9b7-builder sleep infinity
+
+      - name: Build and sign additional applications
+        run: docker exec 9b7-ci-builder bash scripts/build-extra-packages.sh
+
+      - name: Build and sign DEsk with its private wlroots
+        run: docker exec 9b7-ci-builder bash scripts/build-desk-package.sh
+
+      - name: Build Desktop only
+        id: image
+        run: |
+          docker exec 9b7-ci-builder bash scripts/build-iso.sh desktop
+          mapfile -t images < <(find out -maxdepth 1 -name '*-desktop.iso' -type f)
+          [[ ${#images[@]} == 1 ]]
+          echo "iso=${images[0]}" >> "$GITHUB_OUTPUT"
+          (cd out && sha256sum --check "$(basename "${images[0]}").sha256")
+
+      - name: BIOS boot, SDDM password login and desktop apps
+        env:
+          ISO: ${{ steps.image.outputs.iso }}
+        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode bios --output work/qemu-bios
+
+      - name: UEFI boot, SDDM password login and desktop apps
+        env:
+          ISO: ${{ steps.image.outputs.iso }}
+        run: python3 scripts/qemu-desktop-smoke.py --iso "$ISO" --mode uefi --output work/qemu-uefi
+
+      - name: Save boot screenshots and results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: desktop-boot-evidence-${{ github.run_number }}
+          path: work/qemu-*/
+          if-no-files-found: warn
+          retention-days: 14
+
+      - name: Publish verified experimental download
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ISO: ${{ steps.image.outputs.iso }}
+          TAG: desktop-${{ github.run_number }}-${{ github.run_attempt }}
+        run: |
+          set -euo pipefail
+          python3 scripts/release-iso.py prepare --iso "$ISO" --output work/release-desktop
+          cat > work/desktop-release-notes.md <<EOF
+          نسخة **9b7 Desktop تجريبية** لاختبارك في VirtualBox، وليست Full أو إصدارًا نهائيًا.
+
+          حمّل جميع ملفات part مع iso-parts.json وSHA256SUMS.parts وسكربتات JOIN.
+          ضعها في مجلد واحد، ثم شغّل JOIN-WINDOWS.cmd على Windows أو bash JOIN-LINUX.sh على Linux.
+          السكربت يتحقق من الأجزاء ومن SHA-256 للـISO بعد التجميع.
+
+          VirtualBox: Arch Linux 64-bit، ذاكرة 4096MB، معالجان، VMSVGA، وتعطيل 3D كبداية.
+          حساب Live: 9b7 / 9b7. DEsk افتراضي، مع XFCE وHyprland في اختيار الجلسة.
+
+          نجحت اختبارات المصدر وإقلاع BIOS وUEFI وتسجيل الدخول عبر SDDM وبدء عمليات DEsk والتطبيقات في QEMU.
+          هذا فحص تشغيل أولي؛ صور الإقلاع محفوظة في مرفقات تشغيل Actions وتحتاج مراجعة بصرية.
+          VirtualBox نفسه، الجهاز الحقيقي، الصوت الفعلي، التثبيت والإقلاع من القرص والحسابات السحابية
+          غير معتمدة بهذا الاختبار الآلي. الخدمات والنماذج تُنزّل عند الطلب.
+          تجهيز Full مؤجل لحين الموافقة بعد التجربة.
+
+          المصدر: $GITHUB_SHA
+          EOF
+          gh release create "$TAG" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --draft --prerelease --title "9b7 Desktop preview $GITHUB_RUN_NUMBER" --notes-file work/desktop-release-notes.md
+          python3 scripts/release-iso.py upload --iso "$ISO" --output work/release-desktop --tag "$TAG" --repo "$GITHUB_REPOSITORY"
+          gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=false
+          if ! python3 scripts/release-iso.py verify --output work/release-desktop --tag "$TAG" --repo "$GITHUB_REPOSITORY"; then
+            gh release edit "$TAG" --repo "$GITHUB_REPOSITORY" --draft=true
+            exit 1
+          fi
+          gh release upload "$TAG" --repo "$GITHUB_REPOSITORY" work/release-desktop/PUBLIC-DOWNLOAD-VERIFIED.json
+          url=$(gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url)
+          printf '## رابط تحميل Desktop التجريبية\n\n%s\n\nحمّل كل الأجزاء وسكربت JOIN المناسب. Full مؤجلة إلى ما بعد تجربتك.\n' "$url" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Stop this job's builder
+        if: always()
+        run: docker rm -f 9b7-ci-builder || true

@@ -1,7 +1,9 @@
 # Latest status — 18 October 2026
 
 - Preserved Full and first Desktop ISO SHA-256 rechecks: PASS.
-- Current source: 32 Python tests, ShellCheck, seven Compose configs: PASS.
+- Current source: 35 Python tests, ShellCheck, seven Compose configs: PASS.
+- Desktop workflow YAML/expressions and embedded shell: actionlint 1.7.7 PASS.
+  A complete GitHub-hosted build/publish run of the new workflow has NOT RUN.
 - Real offscreen Qt: legacy Studio, Control Center, new bilingual Business Studio,
   AI Hub verified test installation/removal and usage display: PASS.
 - Five official agent binary `--version` checks on host Linux: PASS; details in AI-HUB.md.
@@ -12,8 +14,22 @@
   new Business Studio/AI Hub are not yet incorporated in a tested final ISO.
 - PipeWire services/sink: detected; audible output NOT TESTED (null backend).
   Local network/DHCP/SSH works; external guest Internet NOT VERIFIED.
-- New Desktop BIOS, XFCE/Hyprland session switching, lock/unlock, logout,
-  installation/second boot: PENDING. VirtualBox/hardware: UNAVAILABLE.
+- New Desktop `9b7-2026.10.18-x86_64-desktop.iso`, source `507d24f`,
+  4,108,910,592 bytes: SHA-256 recheck PASS, original Plymouth and Slot-SDDM-6
+  visually confirmed under both BIOS and UEFI in QEMU TCG, 4GiB, std VGA.
+  UEFI password login, DEsk CPU renderer, and Firefox/Thunar/new Studio window
+  creation: PASS. Screenshots in `images/desktop-20261018/`.
+  DEsk's first-start preparation overlay was still visible in the app screenshot;
+  this does not certify a fully prepared desktop or complete app functionality.
+- The first automation attempt guessed the wrong greeter VT. It was interrupted
+  while preserving the VMs, then the corrected session checks were resumed.
+  UEFI session checks passed. BIOS initially reached DEsk, but a subsequent
+  automation attempt after restarting SDDM failed authentication; it is NOT a
+  passing complete BIOS automation run. The harness now discovers the greeter VT,
+  uses TTY6 and clears the password field. A fresh complete run of the final
+  harness is still required and is enforced by the publishing workflow.
+- New XFCE/Hyprland session switching, lock/unlock, logout, installation/second
+  boot: PENDING. VirtualBox/hardware: UNAVAILABLE.
 - Cloud restart stopped VMs and cleared tmpfs roots; Desktop root restored from
   checksum-verified ISO. No earlier runtime process is assumed to have survived.
 - No completed public release/download verification. Original Full draft remains
