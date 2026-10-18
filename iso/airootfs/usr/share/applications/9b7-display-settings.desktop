@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=Display Settings
+Name[ar]=إعدادات الشاشة
+Comment=Choose the display resolution and scale
+Comment[ar]=اختيار دقة الشاشة وحجم عناصر الواجهة
+Exec=wdisplays
+TryExec=wdisplays
+Icon=preferences-desktop-display
+Categories=Settings;HardwareSettings;
+NotShowIn=XFCE;

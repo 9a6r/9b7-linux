@@ -1,0 +1,17 @@
+--- a/src/draw.c
++++ b/src/draw.c
+@@ -3756,10 +3756,10 @@
+ 	char tag;
+ };
+ static const struct room_q ROOM_Q[DESK_GFX_COUNT] = {
+-	/* 2D: a sample a pixel, softened (room_bake) -- a quarter of the work of
+-	 * four, which on a machine drawing on its CPU is the first start in a
+-	 * quarter of the time, and looks the same stretched to the screen */
+-	[DESK_GFX_2D] = { 640, 1, 0, false, 'f' },
++	/* 9b7: retain the inexpensive single-sample static fallback, but bake
++	 * at up to 1280px so HD guests do not enlarge a 640px room. The higher
++	 * cold-start cost is paid once per cached room; effects stay disabled. */
++	[DESK_GFX_2D] = { 1280, 1, 0, false, 'f' },
+ 	[DESK_GFX_LOW] = { 960, 2, 6, true, 'l' },
+ 	[DESK_GFX_MEDIUM] = { 1280, 2, 4, true, 'm' },
+ 	[DESK_GFX_HIGH] = { 0, 2, 4, true, 'h' },

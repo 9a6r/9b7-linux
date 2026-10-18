@@ -5,6 +5,8 @@ ModuleName=two-step
 
 [two-step]
 BackgroundName=background
+# Fit the supplied artwork to the display instead of repeating 1366x768 tiles.
+ScaleBackgroundImage=true
 Font=Cantarell 12
 TitleFont=Cantarell Light 30
 ImageDir=/usr/share/plymouth/themes/arch-slider-and-glow/resources

@@ -25,21 +25,34 @@ Hyprland permanently as another selectable session.
 * User `plymouth theme.zip`: SHA-256
   `570c4f08a483148cb5c36f8f0927f16cb08ba01feb510ffc7d8ffa1a350e21d5`.
   **arch-slider-and-glow**, MIT, 2026 Hasan Agit Ünal. Original two-step
-  definition, animation frames and license are vendored. `install.sh` is
+  definition, animation frames and license are vendored. The downstream
+  definition enables `ScaleBackgroundImage=true` to fit the original background
+  instead of tiling it; every supplied PNG remains unchanged. `install.sh` is
   excluded and was never executed. Previous 9b7 artwork remains in source.
 
 ## Sessions and recovery
 
 SDDM uses Slot on X11, with software Qt Quick rendering for VMs. It offers
 DEsk, DEsk 2D, XFCE and retained Hyprland. First login selects DEsk; compatibility
-boot selects XFCE. SDDM remembers subsequent choices. DEsk automatically selects
-CPU/pixman in VMs. From Ctrl+Alt+F3, log in and run
+boot selects XFCE. SDDM remembers subsequent choices. The normal DEsk session
+lets wlroots detect acceleration in VMs as well as on physical machines. Only
+the explicit DEsk 2D session forces CPU/pixman. DEsk itself detects software
+renderers and selects 2D when the user has not overridden graphics quality.
+From Ctrl+Alt+F3, log in and run
 `sudo 9b7-display-manager lightdm` for recovery. The reverse command selects
 SDDM. Switching ends graphical sessions.
 
 Plymouth's original theme is selected before initramfs generation. Both live
 and installed initramfs include plymouth; normal boot has quiet/splash.
 Compatibility boot leaves text diagnostics available.
+
+The machine graphics default is High for accelerated sessions. Package
+`9b7-desk 0.1.2-2` applies the checksummed MIT downstream patch
+`packaging/9b7-desk/0001-sharper-software-room.patch`: the static 2D room width
+cap is 1280 instead of 640. Single sampling and disabled effects are retained;
+cold preparation costs more CPU time. Original upstream room design, icons and
+licenses are retained. `wdisplays` is exposed as Display Settings in the drawer;
+`wlr-randr` provides diagnostics. See [graphics evidence](GRAPHICS-QUALITY.md).
 
 ## Applications and language
 

@@ -1,4 +1,13 @@
-# Latest status — 18 October 2026
+# Latest status — 19 October 2026 (Cairo)
+
+- Graphics correction: real Arch Plymouth two-step/Xvfb before/after at
+  1280×800 and 1920×1080 confirms background tiling is fixed. All 152 original
+  resource hashes match. Real headless DEsk/pixman confirms sharper 1280px 2D
+  rendering, CPU fallback, live resolution changes and a wdisplays window.
+  Clean signed package 0.1.2-2 build and source checks PASS. Screenshots, exact
+  conditions and limitations: [GRAPHICS-QUALITY.md](GRAPHICS-QUALITY.md).
+  **No new ISO/BIOS/UEFI/VirtualBox run for this graphics revision.** Older boot
+  results below must not be attributed to it.
 
 - Preserved Full and first Desktop ISO SHA-256 rechecks: PASS.
 - Current source: 35 Python tests, ShellCheck, seven Compose configs: PASS.

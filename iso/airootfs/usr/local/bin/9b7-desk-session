@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -euo pipefail
 export XDG_CURRENT_DESKTOP=DEsk
-# Auto-select CPU rendering in VMs; this keeps DEsk as the default session.
-if [[ ${1:-} == --2d ]] || systemd-detect-virt --vm --quiet; then
+# Let DEsk/wlroots detect working acceleration, including VirtualBox VMSVGA.
+# The separate recovery session explicitly opts into software rendering.
+if [[ ${1:-} == --2d ]]; then
     export WLR_RENDERER=pixman DESK_NO_GPU=1 DESK_ON_CPU=1
+    shift
 fi
 if [[ -S /run/user/$(id -u)/bus ]]; then
     DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
     export DBUS_SESSION_BUS_ADDRESS
 fi
-exec /usr/bin/desk-session
+exec /usr/bin/desk-session "$@"

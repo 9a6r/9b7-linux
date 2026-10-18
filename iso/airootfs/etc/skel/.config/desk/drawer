@@ -4,6 +4,7 @@ app 9b7-control-center.desktop
 app 9b7-ai-hub.desktop
 app 9b7-software-center.desktop
 app 9b7-flow.desktop
+app 9b7-display-settings.desktop
 thing browser
 thing files
 thing editor

@@ -1,7 +1,7 @@
 # DEsk is a beta; private wlroots preserves the system compositor packages.
 pkgname=9b7-desk
 pkgver=0.1.2
-pkgrel=1
+pkgrel=2
 pkgdesc='DEsk Wayland desktop for the 9b7 experimental Desktop edition'
 arch=('x86_64')
 url='https://github.com/fyzugx/DEsk'
@@ -14,10 +14,16 @@ depends=('wayland' 'libxkbcommon' 'libinput' 'cairo' 'pixman' 'fontconfig'
 makedepends=('meson' 'ninja' 'pkgconf' 'wayland-protocols' 'hwdata')
 _commit=195435a09b9343e49b12e8dd8838a6e579a9aaa4
 source=("desk-$pkgver.tar.gz::https://codeload.github.com/fyzugx/DEsk/tar.gz/$_commit"
-        'wlroots-0.18.3.tar.gz::https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.18.3/downloads/wlroots-0.18.3.tar.gz')
+        'wlroots-0.18.3.tar.gz::https://gitlab.freedesktop.org/wlroots/wlroots/-/releases/0.18.3/downloads/wlroots-0.18.3.tar.gz'
+        '0001-sharper-software-room.patch')
 sha256sums=('4c4fa1a82273db5eec749cdae4b0af6912fe4287dde742d34cbf130f0c222946'
-            '164a7c8bf9f8ae2c1fb00e7bddb6f08cad7e81b3eb35577b48483b1ac265a087')
+            '164a7c8bf9f8ae2c1fb00e7bddb6f08cad7e81b3eb35577b48483b1ac265a087'
+            '019a4b41abb9b2b9a1259227bc434f02e4adcf2412885c785d3bb5035d5dc963')
 options=('!debug')
+
+prepare() {
+    patch -d "DEsk-$_commit" -p1 < "$srcdir/0001-sharper-software-room.patch"
+}
 
 build() {
     meson setup wlr-build wlroots-0.18.3 --prefix=/opt/9b7/desk-wlroots --libdir=lib \

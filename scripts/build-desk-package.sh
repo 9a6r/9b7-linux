@@ -10,6 +10,7 @@ pacman -Syu --needed --noconfirm base-devel meson ninja wayland wayland-protocol
 directory="$project/cache/desk-build"
 mkdir -p "$directory"
 cp "$project/packaging/9b7-desk/PKGBUILD" "$directory/"
+cp "$project/packaging/9b7-desk/"*.patch "$directory/"
 chown -R builder:builder "$directory"
 export GNUPGHOME="$project/cache/signing"
 key=$(gpg --show-keys --with-colons "$project/cache/packages/builder.asc" | awk -F: '$1=="fpr" {print $10; exit}')
