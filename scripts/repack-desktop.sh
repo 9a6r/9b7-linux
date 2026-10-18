@@ -9,6 +9,9 @@ output=$(realpath -m "${3:?New ISO path required}")
 [[ $EUID == 0 && -f /etc/arch-release ]] || { echo 'Use the privileged Arch builder' >&2; exit 1; }
 [[ $base == *-desktop.iso && $output == *.iso && ! -e $output ]] || { echo 'Refusing to overwrite an artifact or use a Full ISO' >&2; exit 1; }
 [[ $(cat "$root/etc/9b7-edition") == desktop ]]
+for directory in "$root" "$root/etc" "$root/usr" "$root/opt/9b7"; do
+    [[ $(stat -c %a "$directory") == 755 ]] || { echo "Apply scripts/apply-profile.sh before repacking: $directory" >&2; exit 1; }
+done
 [[ -z $(git -c safe.directory="$project" -C "$project" status --porcelain) ]]
 commit=$(git -c safe.directory="$project" -C "$project" rev-parse HEAD)
 [[ $(cat "$root/opt/9b7/SOURCE-COMMIT") == "$commit" ]] || { echo 'Prepared root source does not match HEAD' >&2; exit 1; }
