@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=9b7 Software Center
+Name[ar]=مركز البرامج
+Exec=9b7-software-center
+Icon=system-software-install
+Categories=System;Utility;
+StartupNotify=true

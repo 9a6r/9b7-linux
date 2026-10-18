@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=9b7 AI Hub
+Name[ar]=مركز الذكاء الاصطناعي
+Exec=9b7-ai-hub
+Icon=9b7
+Categories=System;Utility;
+StartupNotify=true

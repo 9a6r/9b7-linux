@@ -6,6 +6,7 @@ if [[ ${1:-} == --2d ]] || systemd-detect-virt --vm --quiet; then
     export WLR_RENDERER=pixman DESK_NO_GPU=1 DESK_ON_CPU=1
 fi
 if [[ -S /run/user/$(id -u)/bus ]]; then
-    export DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+    DBUS_SESSION_BUS_ADDRESS="unix:path=/run/user/$(id -u)/bus"
+    export DBUS_SESSION_BUS_ADDRESS
 fi
 exec /usr/bin/desk-session

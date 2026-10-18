@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+# Fixed catalog only. Pacman's signature checks and interactive confirmation stay enabled.
+set -euo pipefail
+[[ $EUID == 0 ]] || { echo 'Administrator authentication required.' >&2; exit 1; }
+[[ $# == 2 ]] || exit 2
+action=$1
+package=$2
+case "$package" in
+    firefox|thunar|dbeaver|btop|nodejs|ollama|libreoffice-fresh|gimp) ;;
+    *) echo 'Unknown package' >&2; exit 2 ;;
+esac
+case "$action" in
+    install) exec /usr/bin/pacman -Syu --needed "$package" ;;
+    remove)
+        case "$package" in ollama|libreoffice-fresh|gimp) ;; *) exit 2 ;; esac
+        # Keep dependencies and user data; only the selected optional package is removed.
+        exec /usr/bin/pacman -R "$package" ;;
+    start|stop)
+        [[ $package == ollama ]] || exit 2
+        exec /usr/bin/systemctl "$action" ollama.service ;;
+    *) exit 2 ;;
+esac

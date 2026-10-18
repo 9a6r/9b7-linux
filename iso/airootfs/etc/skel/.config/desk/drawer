@@ -1,6 +1,8 @@
 # DEsk's drawer (2) — 9b7 defaults
 app 9b7-studio.desktop
 app 9b7-control-center.desktop
+app 9b7-ai-hub.desktop
+app 9b7-software-center.desktop
 app 9b7-flow.desktop
 thing browser
 thing files

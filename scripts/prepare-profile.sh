@@ -62,7 +62,7 @@ printf '[Daemon]\nTheme=arch-slider-and-glow\nShowDelay=0\n' > "$root/etc/plymou
 printf 'en_US.UTF-8 UTF-8\nar_EG.UTF-8 UTF-8\n' > "$root/etc/locale.gen"
 ln -sf /usr/share/zoneinfo/Africa/Cairo "$root/etc/localtime"
 mkdir -p "$root/opt/9b7" "$root/usr/share/backgrounds/9b7" "$root/usr/share/icons/hicolor/scalable/apps"
-for part in nineb7 data services docs automation; do
+for part in nineb7 data services docs automation packaging; do
     cp -a "$project/$part" "$root/opt/9b7/"
 done
 find "$root/opt/9b7" -type d -name __pycache__ -prune -exec rm -rf {} +
@@ -70,7 +70,7 @@ cp "$project/README.md" "$project/LICENSE" "$root/opt/9b7/"
 cp "$project/assets/wallpaper.svg" "$root/usr/share/backgrounds/9b7/"
 rsvg-convert -o "$root/usr/share/backgrounds/9b7/wallpaper.png" "$project/assets/wallpaper.svg"
 cp "$project/assets/9b7.svg" "$root/usr/share/icons/hicolor/scalable/apps/"
-for module in studio flow services agents control_center; do
+for module in studio flow services agents control_center ai_hub software_center; do
     command_name=${module//_/-}
     cat > "$root/usr/local/bin/9b7-$command_name" <<LAUNCHER
 #!/usr/bin/env bash

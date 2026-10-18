@@ -27,6 +27,8 @@ TOOLS = {
     "Appearance · المظهر": ["nwg-look"],
     "System monitor · الموارد": ["xfce4-terminal", "-e", "btop"],
     "BIS Studio": ["9b7-studio"],
+    "AI Hub · مركز الذكاء الاصطناعي": ["9b7-ai-hub"],
+    "Software Center · مركز البرامج": ["9b7-software-center"],
     "Database workbench · قواعد البيانات": ["dbeaver"],
     "Terminal · الطرفية": ["xfce4-terminal"],
 }
@@ -68,7 +70,7 @@ class ControlCenter(Studio):
         self.root = services.project_root()
         frame = QWidget()
         layout = QVBoxLayout(frame)
-        title = QLabel("9b7 Linux / Control Center · مركز التحكم")
+        title = QLabel("9b7 / Control Center · مركز التحكم")
         title.setStyleSheet("font-size:24px; font-weight:bold; padding:12px")
         layout.addWidget(title)
         self.tabs = QTabWidget()
@@ -127,7 +129,7 @@ class ControlCenter(Studio):
         page = QWidget()
         box = QVBoxLayout(page)
         text = QLabel(
-            "9b7 Linux — BIS graduation workspace\n\n"
+            "9b7 — BIS graduation workspace\n\n"
             "Desktop: DEsk v0.1.2 BETA by the DEsk authors (MIT).\n"
             "Original room, icons and GTK theme preserved.\n"
             "Login: Slot-SDDM-6 by l4k1 (GPLv3).\n"

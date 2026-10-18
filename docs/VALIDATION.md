@@ -1,3 +1,26 @@
+# Latest status — 18 October 2026
+
+- Preserved Full and first Desktop ISO SHA-256 rechecks: PASS.
+- Current source: 32 Python tests, ShellCheck, seven Compose configs: PASS.
+- Real offscreen Qt: legacy Studio, Control Center, new bilingual Business Studio,
+  AI Hub verified test installation/removal and usage display: PASS.
+- Five official agent binary `--version` checks on host Linux: PASS; details in AI-HUB.md.
+  Account authentication and paid requests: NOT RUN.
+- First Desktop UEFI under QEMU TCG 4GiB: original Plymouth visible with progress,
+  original Slot-SDDM-6 visible, 9b7 login into DEsk pixman/2D: PASS.
+  Firefox, Thunar and legacy Studio windows visible. Source QML corrections and
+  new Business Studio/AI Hub are not yet incorporated in a tested final ISO.
+- PipeWire services/sink: detected; audible output NOT TESTED (null backend).
+  Local network/DHCP/SSH works; external guest Internet NOT VERIFIED.
+- New Desktop BIOS, XFCE/Hyprland session switching, lock/unlock, logout,
+  installation/second boot: PENDING. VirtualBox/hardware: UNAVAILABLE.
+- Cloud restart stopped VMs and cleared tmpfs roots; Desktop root restored from
+  checksum-verified ISO. No earlier runtime process is assumed to have survived.
+- No completed public release/download verification. Original Full draft remains
+  incomplete. Do not describe either build as a stable final system.
+
+The dated entries below are historical evidence, not the latest release state.
+
 # Validation evidence and release gates
 
 Updated 2026-10-17. QEMU live boot has now been tested. Hardware/VirtualBox and installed-system certification remain pending.

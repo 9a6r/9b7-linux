@@ -1,0 +1,63 @@
+{
+  "claude": {
+    "title": "Claude Code",
+    "version": "2.1.292",
+    "url": "https://downloads.claude.ai/claude-code-releases/2.1.292/linux-x64/claude",
+    "sha256": "a967e7b1d8b4e47ee421d5433027880347952b0c0857abf880e2c942a4ec93b3",
+    "size": 251456696,
+    "format": "binary",
+    "executable": "claude",
+    "license": "Anthropic Commercial Terms",
+    "license_url": "https://www.anthropic.com/legal/commercial-terms",
+    "auth": "Official Claude account / eligible subscription or API billing. Cloud model; not a local model."
+  },
+  "codex": {
+    "title": "OpenAI Codex",
+    "version": "rust-v0.163.0",
+    "url": "https://github.com/openai/codex/releases/download/rust-v0.163.0/codex-package-x86_64-unknown-linux-musl.tar.gz",
+    "sha256": "582646c6bf0561eb0de540f7fc85b9121b0091a826bc6e96830b7f1722122182",
+    "size": 159424486,
+    "format": "tar.gz",
+    "executable": "codex",
+    "license": "Apache-2.0",
+    "license_url": "https://github.com/openai/codex/blob/main/LICENSE",
+    "auth": "Official provider login required; plan, API billing or organization policy may apply."
+  },
+  "opencode": {
+    "title": "OpenCode",
+    "version": "v1.19.3",
+    "url": "https://github.com/anomalyco/opencode/releases/download/v1.19.3/opencode-linux-x64-baseline.tar.gz",
+    "sha256": "531cff2441129c30f0edd5878af494108ad07f5feb46d7ee29a2a5b830a5765d",
+    "size": 60716645,
+    "format": "tar.gz",
+    "executable": "opencode",
+    "license": "MIT",
+    "license_url": "https://github.com/anomalyco/opencode/blob/dev/LICENSE",
+    "auth": "Official provider login required; plan, API billing or organization policy may apply."
+  },
+  "copilot": {
+    "title": "GitHub Copilot CLI",
+    "version": "v1.0.98",
+    "url": "https://github.com/github/copilot-cli/releases/download/v1.0.98/copilot-linux-x64.tar.gz",
+    "sha256": "87ddb4b3f98462b7cb13c0a6857c68ee410ec9673e2e5f64ee5bedad45825b05",
+    "size": 116812784,
+    "format": "tar.gz",
+    "executable": "copilot",
+    "license": "GitHub Copilot CLI License",
+    "license_url": "https://github.com/github/copilot-cli/blob/main/LICENSE.md",
+    "auth": "Official provider login required; plan, API billing or organization policy may apply."
+  },
+  "gemini": {
+    "title": "Gemini CLI",
+    "version": "0.64.0",
+    "url": "https://registry.npmjs.org/@google/gemini-cli/-/gemini-cli-0.64.0.tgz",
+    "sha256": "891a794e55c8319b6b78f6f8f13d6b8b2782a4709dfd2fcabf3a1f63ae8365e6",
+    "size": 20841287,
+    "format": "tar.gz",
+    "executable": "gemini.js",
+    "requires": "node >=20",
+    "license": "Apache-2.0",
+    "license_url": "https://github.com/google-gemini/gemini-cli/blob/main/LICENSE",
+    "auth": "Official Google/API/Vertex login; current account eligibility and plan requirements apply. Native PTY/keychain optional integrations are not bundled."
+  }
+}
