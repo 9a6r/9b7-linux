@@ -17,7 +17,9 @@ BUFFER = 8 * 1024**2
 
 
 def gh(*args):
-    return subprocess.check_output(['gh', *map(str, args)], text=True)
+    env = dict(os.environ)
+    if env.get('GH_UPLOAD_TOKEN'): env['GH_TOKEN'] = env['GH_UPLOAD_TOKEN']
+    return subprocess.check_output(['gh', *map(str, args)], text=True, env=env)
 
 
 def get_release(repo, tag):
@@ -101,10 +103,10 @@ def upload(iso, output, tag, repo):
     # Probe asset authorization before allocating a large temporary part.
     metadata = [output / name for name in ('iso-parts.json', 'SHA256SUMS.parts',
                 'JOIN-LINUX.sh', 'JOIN-WINDOWS.cmd', 'JOIN-WINDOWS.ps1')]
-    metadata += [iso.with_name(iso.name + '.sha256'), iso.with_name(iso.name + '.packages.txt'), iso.parent / 'SOURCE-COMMIT']
+    metadata += [iso.with_name(iso.name + '.sha256'), iso.with_name(iso.name + '.packages.txt'), (iso.with_name(iso.name + '.source-commit') if iso.with_name(iso.name + '.source-commit').exists() else iso.parent / 'SOURCE-COMMIT')]
     gh('release', 'upload', tag, '--repo', repo, '--clobber', *metadata)
     assets = {a['name']: a for a in release['assets']}
-    token = os.environ.get('GH_TOKEN') or gh('auth', 'token').strip()
+    token = os.environ.get('GH_UPLOAD_TOKEN') or os.environ.get('GH_TOKEN') or gh('auth', 'token').strip()
     upload_url = release['upload_url'].split('{')[0]
     if urllib.parse.urlparse(upload_url).hostname != 'uploads.github.com':
         raise ValueError('Unexpected GitHub upload host')

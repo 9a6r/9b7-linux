@@ -26,6 +26,8 @@ jobs:
         run: docker build -t 9b7-builder -f scripts/builder.Dockerfile .
       - name: Build and sign additional packages
         run: docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-extra-packages.sh
+      - name: Build and sign DEsk with its private wlroots
+        run: docker run --rm --privileged -v "$PWD:/project" 9b7-builder bash scripts/build-desk-package.sh
       - name: Bundle images and local model
         if: inputs.edition == 'full'
         run: python3 scripts/bundle-offline.py
