@@ -8,7 +8,7 @@ RUN --mount=type=secret,id=build_ca \
     fi; \
     pacman -Syu --noconfirm --needed archiso base-devel sudo git python python-pip \
     python-yaml python-build python-installer python-wheel python-setuptools \
-    librsvg shellcheck jq curl qemu-system-x86 edk2-ovmf \
+    librsvg shellcheck jq curl rsync qemu-system-x86 edk2-ovmf \
     && pacman -Scc --noconfirm
 WORKDIR /project
 CMD ["bash"]

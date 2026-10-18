@@ -1,8 +1,8 @@
 # DEsk integration — experimental Desktop track
 
 The October 17 decision makes DEsk the primary desktop for the experimental
-Desktop ISO. XFCE remains a recovery session. Hyprland stays installed until
-real application and session tests justify its removal.
+Desktop ISO. XFCE remains a recovery session. The latest user roadmap keeps
+Hyprland permanently as another selectable session.
 
 ## Provenance and licenses
 
@@ -19,8 +19,9 @@ real application and session tests justify its removal.
   Member `SDDM/SDDM` is a TAR. Original Slot-SDDM-6 QML/artwork are vendored
   under `iso/airootfs/usr/share/sddm/themes/Slot-SDDM-6`. Metadata declares
   **GPLv3**, author **l4k1**, version 1.0. The missing full license text is
-  supplied in `usr/share/licenses/Slot-SDDM-6`. Only `theme.conf.user` adds
-  the 9b7 greeting and allows the requested username. Original hashes: packaging.
+  supplied in `usr/share/licenses/Slot-SDDM-6`. `theme.conf.user` adds
+  the 9b7 greeting and allows the requested username. Minimal QML compatibility
+  corrections are listed below. Original hashes: packaging.
 * User `plymouth theme.zip`: SHA-256
   `570c4f08a483148cb5c36f8f0927f16cb08ba01feb510ffc7d8ffa1a350e21d5`.
   **arch-slider-and-glow**, MIT, 2026 Hasan Agit Ünal. Original two-step
