@@ -1,0 +1,22 @@
+{
+  "mode": "bios",
+  "acceleration": "tcg,thread=multi",
+  "memory_mib": 4096,
+  "sddm_password_login": true,
+  "desk_session": true,
+  "desk_and_library_render_complete": true,
+  "edition": "virtualbox",
+  "application_processes": [
+    "Firefox",
+    "Thunar"
+  ],
+  "application_windows_reported_by_compositor": true,
+  "screenshots": "captured; review visually",
+  "not_tested": [
+    "VirtualBox",
+    "hardware",
+    "installation",
+    "audio output",
+    "cloud AI authentication"
+  ]
+}

@@ -4,6 +4,8 @@
 
 **Full والتثبيت على الجهاز مؤجلان حتى الموافقة بعد التجربة.** كود تطبيقاتنا والنسخ القديمة محفوظ للإضافة لاحقًا. الثيمان الأصليان SDDM وPlymouth مستمران. [دليل نسخة VirtualBox الحالية](docs/VIRTUALBOX.ar.md)، و[نتائج كل نسخة وحدود الاختبارات](docs/HANDOFF.md).
 
+آخر تحقق محلي: ISO بحجم **2.28GiB** من المصدر `d510805` اجتازت QEMU BIOS، تسجيل الدخول، اكتمال رسم DEsk وفتح Firefox وThunar. [الصور والبصمة وحدود الاختبار](docs/VALIDATION.md). VirtualBox نفسه وتسريع3D على جهاز المستخدم لم يُختبرا هنا؛ هذه نسخة تجربة وليست إصدارًا نهائيًا.
+
 للبناء والتنزيل افتح [VirtualBox ISO - DEsk preview](https://github.com/9a6r/9b7-linux/actions/workflows/desktop-download.yml)، ثم **Run workflow → main → Run workflow**. بعد البناء وفحص SHA-256 تُحفظ نسخة **`virtualbox-iso-experimental-…`** في **Artifacts** لمدة 3 أيام، قبل اختبار الإقلاع. نزّل ZIP، فكّه، واختر ملف `.iso` في VirtualBox؛ لا تحتاج تقسيمًا أو JOIN لهذا التحميل. الرابط يظهر أيضًا في Summary. قد يبقى الملف متاحًا عند فشل اختبار لاحق؛ راجع النتيجة والصور، ولا تعتبر وجود التحميل نجاحًا للإقلاع.
 
 بعد نجاح فحوص QEMU يظهر أيضًا رابط **Release** بأجزاء وبصمات وسكربتات JOIN للتنزيل العام. لا تحتاج PAT أو إعداد سر GitHub. لو تعمل من **Fork**، نفّذ **Sync fork → Update branch** أولًا ثم **Run workflow** جديدًا داخل نسختك؛ **Re-run jobs** على تشغيل قديم لن يستخدم الإصلاحات الجديدة.

@@ -1,0 +1,64 @@
+1316
+1317
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   2560x1080 @ 50.000 Hz
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   1856x1392 @ 59.995 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1792x1344 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   2048x1152 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1200 @ 59.885 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1080 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1080 @ 50.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1600x1200 @ 60.000 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1680x1050 @ 59.954 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1400x1050 @ 59.978 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x1024 @ 60.020 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1440x900 @ 59.887 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x960 @ 60.000 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1360x768 @ 60.015 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x768 @ 59.870 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1024x768 @ 60.004 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   800x600 @ 60.317 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   640x480 @ 60.000 Hz
+00:00:02.212 [INFO] [backend/drm/drm.c:1606]   640x480 @ 59.940 Hz
+00:00:02.212 [INFO] [backend/drm/drm.c:1643] Physical size: 320x200
+00:00:02.228 [INFO] [backend/drm/drm.c:1825] connector Virtual-1: Requesting modeset
+00:00:02.433 [INFO] [backend/drm/drm.c:916] connector Virtual-1: Modesetting with 1280x800 @ 74.994 Hz
+00:00:02.486 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:20890] Virtual-1: 1280x800, 320x200 mm: a point is 1.00 pixels
+00:00:02.932 [ERROR] [xwayland/sockets.c:64] Failed to bind socket @/tmp/.X11-unix/X0: Address already in use
+00:00:02.957 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22069] X11 programs: DISPLAY=:1, Xwayland starts with the first one
+00:00:03.078 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/lock.c:244] lock: watching /org/freedesktop/login1/session/_39
+00:00:03.175 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/occasion.c:182] occasion: the house is about 30.1, 31.2 (Africa/Cairo)
+00:00:03.177 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22729] screen: dark after 600 s with nobody at it, the door locked first
+00:00:03.202 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22742] the post box has the bus: DEsk is the notification daemon
+00:00:03.227 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22748] the clock keeps the tray
+00:00:03.274 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22761] DEsk running on WAYLAND_DISPLAY=wayland-0
+00:00:04.174 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:20594] the first frame (4.18 s)
+00:00:04.175 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:202] session: D-Bus and systemd told where the display is
+00:00:04.475 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: Blueman Applet (blueman.desktop)
+00:00:04.484 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:382] autostart: not nm-applet.desktop (left out under DEsk)
+00:00:04.553 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: vboxclient (vboxclient.desktop)
+00:00:04.657 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: User folders update (xdg-user-dirs.desktop)
+00:00:05.131 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Input method (desk-ime.desktop)
+00:00:05.490 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Keyring (desk-keyring.desktop)
+00:00:05.774 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Memory sticks and disks (desk-media.desktop)
+discover_other_daemon: 100:00:05.966 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Network applet (desk-network.desktop)
+00:00:06.546 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Authentication agent (desk-polkit.desktop)
+00:00:07.373 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Battery (desk-power.desktop)
+batsignal: No batteries found
+00:00:10.106 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15641] the desk is up (10.1 s)
+00:00:10.924 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15891] the light is on (10.9 s since the start)
+desk: sound: 53 sounds made; playing to ALSA
+desk: room: read back 1280x804: the desk in 7.46 s, the views in 22.49 s, 0 of 0 films in 0.00 s
+00:00:36.100 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the bookcase is up (36.1 s since the start)
+00:00:36.101 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the Control Panel is up (36.1 s since the start)
+00:00:36.101 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the post box is up (36.1 s since the start)
+blueman-applet 23.14.55 WARNING  PluginManager:93 load_plugin: Failed to start plugin GameControllerWakelock: Only X11 platform is supported
+00:00:38.433 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15715] the lamp is up (35.2 s, 38.4 s since the start)
+00:00:38.434 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:14106] post: 1 letter, 1 unread
+00:00:38.541 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15577] a letter: the screen is drawn on the CPU
+blueman-applet 23.14.58 WARNING  PluginManager:153 __load_plugin: Not loading DhcpClient because its conflict has higher priority
+blueman-applet 23.14.58 WARNING  PluginManager:153 __load_plugin: Not loading PPPSupport because its conflict has higher priority
+blueman-applet 23.15.08 WARNING  DiscvManager:122 update_menuitems: warning: Adapter is None
+00:01:02.801 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:21056] a window comes onto the desk: 9b7 - Thunar (thunar) at 320,88, 696x484, on our paper
+00:01:25.935 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:21056] a window comes onto the desk: Mozilla Firefox (firefox) at 348,112, 696x450, its own frame, on paper
+00:01:02.801 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:21056] a window comes onto the desk: 9b7 - Thunar (thunar) at 320,88, 696x484, on our paper
+00:01:25.935 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:21056] a window comes onto the desk: Mozilla Firefox (firefox) at 348,112, 696x450, its own frame, on paper

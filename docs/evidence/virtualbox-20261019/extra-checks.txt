@@ -1,0 +1,11 @@
+  UNIT LOAD ACTIVE SUB DESCRIPTION
+
+0 loaded units listed.
+ActiveState=inactive
+ConditionResult=no
+Result=success
+               total        used        free      shared  buff/cache   available
+Mem:           3.8Gi       956Mi       1.5Gi        58Mi       1.6Gi       2.9Gi
+Swap:             0B          0B          0B
+21M	/home/9b7/.cache/desk
+d510805cb183059bb8c40235b431d91cf3f94a61

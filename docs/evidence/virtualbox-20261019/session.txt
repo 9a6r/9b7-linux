@@ -1,0 +1,88 @@
+00:00:00.000 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22306] DEsk v0.1.2 (BETA)
+00:00:00.216 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:10559] the desk speaks en; text is set in ui=Noto Sans/sans-serif, print=Noto Serif/serif, display=P052/serif, engrave=Nimbus Sans/sans-serif, type=Nimbus Mono PS/sans-serif, screen=Noto Sans Mono/sans-serif, hand=Noto Serif/serif
+00:00:00.224 [INFO] [libseat] [libseat/backend/seatd.c:64] Could not connect to socket /run/seatd.sock: No such file or directory
+00:00:00.224 [INFO] [libseat] [libseat/libseat.c:76] Backend 'seatd' failed to open seat, skipping
+00:00:00.263 [INFO] [libseat] [libseat/libseat.c:73] Seat opened with backend 'logind'
+00:00:00.264 [INFO] [backend/session/session.c:108] Successfully loaded libseat session
+00:00:00.311 [INFO] [backend/backend.c:256] Found 1 GPUs
+00:00:00.314 [INFO] [backend/drm/backend.c:185] Initializing DRM backend for /dev/dri/card0 (bochs-drm)
+00:00:00.314 [INFO] [backend/drm/drm.c:310] Found 1 DRM CRTCs
+00:00:00.316 [INFO] [backend/drm/drm.c:268] Found 1 DRM planes
+00:00:00.755 [INFO] [render/egl.c:205] Supported EGL client extensions: EGL_EXT_device_base EGL_EXT_device_enumeration EGL_EXT_device_query EGL_EXT_platform_base EGL_KHR_client_get_all_proc_addresses EGL_EXT_client_extensions EGL_KHR_debug EGL_EXT_platform_device EGL_EXT_explicit_device EGL_EXT_platform_wayland EGL_KHR_platform_wayland EGL_EXT_platform_x11 EGL_KHR_platform_x11 EGL_EXT_platform_xcb EGL_MESA_platform_gbm EGL_KHR_platform_gbm EGL_MESA_platform_surfaceless
+00:00:00.773 [ERROR] [EGL] command: eglQueryDeviceStringEXT, error: EGL_BAD_PARAMETER (0x300c), message: "eglQueryDeviceStringEXT"
+00:00:00.774 [ERROR] [EGL] command: eglQueryDeviceStringEXT, error: EGL_BAD_PARAMETER (0x300c), message: "eglQueryDeviceStringEXT"
+pci id for fd 18: 1234:1111, driver (null)
+pci id for fd 19: 1234:1111, driver (null)
+pci id for fd 20: 1234:1111, driver (null)
+pci id for fd 19: 1234:1111, driver (null)
+pci id for fd 20: 1234:1111, driver (null)
+00:00:00.891 [ERROR] [render/egl.c:319] Software rendering detected, please use the WLR_RENDERER_ALLOW_SOFTWARE environment variable to proceed
+00:00:00.892 [ERROR] [render/egl.c:571] Failed to initialize EGL context
+00:00:00.893 [ERROR] [render/gles2/renderer.c:499] Could not initialize EGL
+00:00:00.893 [INFO] [render/pixman/renderer.c:328] Creating pixman renderer
+00:00:00.894 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22447] the screen is put together on the processor (pixman)
+00:00:00.894 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15456] the screen is drawn on the CPU (pixman): the desk draws in 2D Fallback
+00:00:01.649 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:19302] pointer: QEMU QEMU USB Tablet (mouse): speed 0.00
+00:00:02.046 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:19259] keyboard: us,ara, grp:alt_shift_toggle (default model)
+00:00:02.197 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:19302] pointer: ImExPS/2 Generic Explorer Mouse (mouse): speed 0.00
+00:00:02.198 [INFO] [backend/drm/drm.c:1713] Scanning DRM connectors on /dev/dri/card0
+00:00:02.207 [INFO] [backend/drm/drm.c:1764] Found connector 'Virtual-1'
+00:00:02.207 [INFO] [backend/drm/drm.c:1789] 'Virtual-1' connected
+00:00:02.207 [INFO] [backend/drm/drm.c:1582] Detected modes:
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   1280x800 @ 74.994 Hz (preferred)
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   1920x1440 @ 60.000 Hz
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   2560x1080 @ 50.000 Hz
+00:00:02.207 [INFO] [backend/drm/drm.c:1606]   1856x1392 @ 59.995 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1792x1344 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   2048x1152 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1200 @ 59.885 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1080 @ 60.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1920x1080 @ 50.000 Hz
+00:00:02.208 [INFO] [backend/drm/drm.c:1606]   1600x1200 @ 60.000 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1680x1050 @ 59.954 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1400x1050 @ 59.978 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x1024 @ 60.020 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1440x900 @ 59.887 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x960 @ 60.000 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1360x768 @ 60.015 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1280x768 @ 59.870 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   1024x768 @ 60.004 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   800x600 @ 60.317 Hz
+00:00:02.211 [INFO] [backend/drm/drm.c:1606]   640x480 @ 60.000 Hz
+00:00:02.212 [INFO] [backend/drm/drm.c:1606]   640x480 @ 59.940 Hz
+00:00:02.212 [INFO] [backend/drm/drm.c:1643] Physical size: 320x200
+00:00:02.228 [INFO] [backend/drm/drm.c:1825] connector Virtual-1: Requesting modeset
+00:00:02.433 [INFO] [backend/drm/drm.c:916] connector Virtual-1: Modesetting with 1280x800 @ 74.994 Hz
+00:00:02.486 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:20890] Virtual-1: 1280x800, 320x200 mm: a point is 1.00 pixels
+00:00:02.932 [ERROR] [xwayland/sockets.c:64] Failed to bind socket @/tmp/.X11-unix/X0: Address already in use
+00:00:02.957 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22069] X11 programs: DISPLAY=:1, Xwayland starts with the first one
+00:00:03.078 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/lock.c:244] lock: watching /org/freedesktop/login1/session/_39
+00:00:03.175 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/occasion.c:182] occasion: the house is about 30.1, 31.2 (Africa/Cairo)
+00:00:03.177 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22729] screen: dark after 600 s with nobody at it, the door locked first
+00:00:03.202 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22742] the post box has the bus: DEsk is the notification daemon
+00:00:03.227 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22748] the clock keeps the tray
+00:00:03.274 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:22761] DEsk running on WAYLAND_DISPLAY=wayland-0
+00:00:04.174 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:20594] the first frame (4.18 s)
+00:00:04.175 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:202] session: D-Bus and systemd told where the display is
+00:00:04.475 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: Blueman Applet (blueman.desktop)
+00:00:04.484 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:382] autostart: not nm-applet.desktop (left out under DEsk)
+00:00:04.553 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: vboxclient (vboxclient.desktop)
+00:00:04.657 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: User folders update (xdg-user-dirs.desktop)
+00:00:05.131 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Input method (desk-ime.desktop)
+00:00:05.490 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Keyring (desk-keyring.desktop)
+00:00:05.774 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Memory sticks and disks (desk-media.desktop)
+discover_other_daemon: 100:00:05.966 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Network applet (desk-network.desktop)
+00:00:06.546 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Authentication agent (desk-polkit.desktop)
+00:00:07.373 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/session.c:396] autostart: DEsk: Battery (desk-power.desktop)
+batsignal: No batteries found
+00:00:10.106 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15641] the desk is up (10.1 s)
+00:00:10.924 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15891] the light is on (10.9 s since the start)
+desk: sound: 53 sounds made; playing to ALSA
+desk: room: read back 1280x804: the desk in 7.46 s, the views in 22.49 s, 0 of 0 films in 0.00 s
+00:00:36.100 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the bookcase is up (36.1 s since the start)
+00:00:36.101 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the Control Panel is up (36.1 s since the start)
+00:00:36.101 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15841] the post box is up (36.1 s since the start)
+blueman-applet 23.14.55 WARNING  PluginManager:93 load_plugin: Failed to start plugin GameControllerWakelock: Only X11 platform is supported
+00:00:38.433 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15715] the lamp is up (35.2 s, 38.4 s since the start)
+00:00:38.434 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:14106] post: 1 letter, 1 unread
+00:00:38.541 [INFO] [../DEsk-195435a09b9343e49b12e8dd8838a6e579a9aaa4/src/wm.c:15577] a letter: the screen is drawn on the CPU

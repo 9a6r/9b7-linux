@@ -1,0 +1,9 @@
+{
+  "iso": "9b7-linux-2026.10.19-x86_64-virtualbox.iso",
+  "source_commit": "d510805cb183059bb8c40235b431d91cf3f94a61",
+  "size_bytes": 2451800064,
+  "sha256": "69b50be1651605977e8af6fa46c40ea58e1d16630a3dd43cefa22a968118d704",
+  "package": "9b7-desk 0.1.2-4",
+  "build_method": "Incremental repack of the installed VirtualBox package root with current profile helpers and original DEsk scene caches",
+  "published_iso_url": null
+}

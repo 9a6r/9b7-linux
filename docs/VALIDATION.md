@@ -1,4 +1,52 @@
-# Latest status — 19 October 2026 (Cairo)
+# Current VirtualBox preview — 19 October 2026
+
+The active edition is now **VirtualBox Live with one DEsk session**. Full,
+physical installation and UEFI are deferred at the user's request. Earlier
+three-desktop and custom-application results below are historical.
+
+Tested ISO: `9b7-linux-2026.10.19-x86_64-virtualbox.iso`, **2,451,800,064 bytes**.
+Source: `d510805cb183059bb8c40235b431d91cf3f94a61`; DEsk package `0.1.2-4`.
+SHA-256, checked after packing:
+`69b50be1651605977e8af6fa46c40ea58e1d16630a3dd43cefa22a968118d704`.
+This was an incremental repack of the already installed VirtualBox package
+root, with the current profile helpers/source reference and freshly rendered
+original DEsk caches. The workflow performs a fresh build; that hosted build
+has **not** been run for this revision.
+
+| Check | Actual result |
+|---|---|
+| Source checks | 39 unittest tests, ShellCheck, seven Compose configs and actionlint passed before code commits |
+| BIOS boot, QEMU TCG / 2 CPUs / 4096 MiB / std VGA | Passed; original Plymouth background and animation, original Slot-SDDM-6 without session selector visually reviewed |
+| Real SDDM password login | Passed with the public Live account `9b7` |
+| Complete DEsk desktop | Passed: first frame 4.18s, desk 10.1s, all five scene-ready markers by 38.4s after compositor startup; screenshot shows the desk, not the preparation overlay |
+| Software renderer and cache | Automatic pixman/2D fallback, no software GPU trial; original 1280×804 scene cache read back successfully at output 1280×800 |
+| Firefox and Thunar | Both processes and compositor windows verified; screenshot shows local Arabic/English HTML in Firefox and Thunar behind it |
+| One session / requested packages | Checked in the booted guest: no Hyprland, XFCE session, LightDM or custom 9b7 apps; external desktop tools and ERPNext service configuration present |
+| Library stays open | Separate real Arch/Xvfb compositor interaction passed: two apps opened over the same book, then manual Super+A return; not a VirtualBox result |
+| Startup services | No failed system units at the sampled point; ldconfig correctly skipped because its build-time work was complete |
+
+In this TCG run `graphical.target` was reached at **67.476s of userspace**
+(previous image: 65.356s); total kernel + userspace was 81.263s versus 77.503s
+previously. The cache fixed the long desktop preparation after login; this
+run does **not** demonstrate a faster overall boot. These are cloud emulation
+measurements, **not a VirtualBox performance guarantee**. A
+sample with the desktop applications running reported 956MiB used / 2.9GiB
+available; heavy containers were not started.
+
+Evidence: [desktop screenshot](images/virtualbox-20261019/cached-desktop-apps.png),
+[fully drawn desk](images/virtualbox-20261019/cached-desk-ready.png),
+[boot/login screenshots and logs](evidence/virtualbox-20261019/README.md).
+
+**Not tested:** VirtualBox itself, hardware 3D, audio output, lock/unlock and
+logout in this new ISO, external Internet from the guest, heavy service
+runtime on a 4GB guest, installation or UEFI. Firefox's extra first-run tab
+reported a page-loading problem; only the local HTML page was verified.
+No new public ISO or completed GitHub-hosted release is claimed here. Use
+the manual workflow on `main` (sync a fork first) for a downloadable build;
+its artifact is saved before its own boot check, and release publishing
+requires that check to pass.
+
+## Earlier graphics and Desktop results — superseded by the profile above
 
 - Graphics correction: real Arch Plymouth two-step/Xvfb before/after at
   1280×800 and 1920×1080 confirms background tiling is fixed. All 152 original
