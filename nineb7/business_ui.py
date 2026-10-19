@@ -9,6 +9,7 @@ from PySide6.QtWidgets import (
     QSpinBox, QTabWidget, QTableWidget, QTableWidgetItem, QVBoxLayout, QWidget,
 )
 from .business import BusinessStore, BusinessError, CURRENCIES, database_path
+from .windowing import show_workspace
 
 AR = {
     "Welcome to Studio": "مرحبًا بك في Studio", "Create your organization": "إنشاء مؤسستك",
@@ -281,7 +282,7 @@ class BusinessStudio(QMainWindow):
 
     def open_flow(self):
         from .studio import Studio
-        window = Studio(); window.show(); self.children_windows.append(window)
+        window = Studio(); show_workspace(window); self.children_windows.append(window)
 
     def open_control(self):
         from .control_center import ControlCenter
@@ -295,7 +296,7 @@ class BusinessStudio(QMainWindow):
                 customer = store.save_customer("عميل تجريبي / Demo customer")
                 product = store.save_product("DEMO-01", "منتج تجريبي / Demo product", "250.00", 20)
                 store.post_invoice(customer, [(product, 2)])
-            window = BusinessStudio(store, demo=True); window.show(); self.children_windows.append(window)
+            window = BusinessStudio(store, demo=True); show_workspace(window); self.children_windows.append(window)
         self.guard(action)
 
     def closeEvent(self, event):
