@@ -84,6 +84,10 @@ chown -R sddm:sddm /var/lib/sddm
 # Exactly one login session. The compositor package's generic session is
 # replaced by our wrapper; no alternate DE packages are in this profile.
 find /usr/share/wayland-sessions /usr/share/xsessions -maxdepth 1 -name '*.desktop' -delete 2>/dev/null || true
+# These update-time tasks are already finished in the immutable Live image.
+# Keep the normal units: a later real package update still triggers them.
+ldconfig
+/usr/lib/systemd/systemd-update-done
 ACCOUNT
 chmod 755 "$root/usr/local/bin/9b7-prepare-live-account" "$root/usr/local/bin/9b7-desk-session"
 # Remove the releng network waits, accessibility startup, mirror selection and

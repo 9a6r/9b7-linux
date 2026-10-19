@@ -106,6 +106,23 @@ done
         if result.returncode == 0: break
         time.sleep(5)
     else: raise RuntimeError('Password login did not start DEsk')
+    # A compositor process and display socket can exist while the room is
+    # still black/preparing. Require the actual desk AND application shelf.
+    print('Waiting for the desk and library to finish their first render', flush=True)
+    deadline = time.monotonic() + (300 if kvm else 900)
+    while time.monotonic() < deadline:
+        result = guest('cat ~/.local/state/desk/session.log\n')
+        (output / 'session.log').write_text(result.stdout + result.stderr)
+        if all(marker in result.stdout for marker in
+               ('the desk is up', 'the bookcase is up', 'the Control Panel is up',
+                'the post box is up', 'the lamp is up')):
+            break
+        if guest('pgrep -u 1000 -x desk\n').returncode:
+            raise RuntimeError('DEsk exited while preparing its desktop')
+        time.sleep(5)
+    else:
+        raise RuntimeError('DEsk process started but its desk/library never became ready')
+    monitor.screen(output / 'desk-ready.png')
     print('DEsk started; launching desktop applications', flush=True)
     launch = '''set -e
 export XDG_RUNTIME_DIR=/run/user/1000
@@ -152,6 +169,7 @@ grep -F 'a window comes onto the desk:' ~/.local/state/desk/session.log | tail -
     monitor.screen(output / 'desktop.png')
     evidence = {'mode':mode, 'acceleration':acceleration, 'memory_mib':4096,
                 'sddm_password_login':True, 'desk_session':True,
+                'desk_and_library_render_complete':True,
                 'edition':edition,
                 'application_processes':['Firefox','Thunar'] + (['9b7 Studio'] if edition == 'desktop' else []),
                 'application_windows_reported_by_compositor':True,
@@ -166,6 +184,7 @@ def main():
     parser.add_argument('--iso', required=True, type=Path)
     parser.add_argument('--mode', choices=['bios', 'uefi'], required=True)
     parser.add_argument('--edition', choices=['desktop', 'virtualbox'], default='desktop')
+    parser.add_argument('--boot-wait', type=int, help='Override boot capture duration in seconds for local diagnosis')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--port', type=int, default=2235)
     args = parser.parse_args()
@@ -209,7 +228,8 @@ def main():
                     time.sleep(.5)
                 monitor = Monitor(qmp)
                 # Keep real boot frames, including Plymouth; no replacement artwork.
-                boot_seconds = 90 if kvm else 300
+                boot_seconds = args.boot_wait if args.boot_wait is not None else (90 if kvm else 300)
+                if boot_seconds < 5: raise ValueError('--boot-wait must be at least 5 seconds')
                 for frame in range(boot_seconds // 5):
                     monitor.screen(output / f'boot-{frame:03}.png')
                     time.sleep(5)

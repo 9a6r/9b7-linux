@@ -11,6 +11,7 @@ output=${NINEB7_OUTPUT_DIR:-$project/out}
 mkdir -p "$workspace" "$output"
 available=$(df --output=avail -k "$workspace" | tail -1)
 required=18000000
+[[ $edition != virtualbox ]] || required=12000000
 [[ $edition != full ]] || required=55000000
 if [[ ${NINEB7_BIND_OFFLINE:-0} == 1 && $edition == full ]]; then
     # Separate RAM-backed workspace: one root plus its compressed SquashFS.

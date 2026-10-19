@@ -6,7 +6,7 @@ Original 9b7 Python code, shell automation, artwork and documentation use the re
 |---|---|---|
 | Arch / archiso releng | https://gitlab.archlinux.org/archlinux/archiso | GPL-3.0-or-later; profile copied from installed archiso at build time |
 | Hyprland | https://github.com/hyprwm/Hyprland | BSD-3-Clause; Omarchy-inspired workflow, original 9b7 config |
-| DEsk v0.1.2 | https://github.com/fyzugx/DEsk/tree/195435a09b9343e49b12e8dd8838a6e579a9aaa4 | MIT, 2026 the DEsk authors; package release3 preserves the original license/visual assets, raises the 2D width cap, changes Games label to s, and adds opt-in windows over the open library; both patches and SHA-256 are in packaging/9b7-desk |
+| DEsk v0.1.2 | https://github.com/fyzugx/DEsk/tree/195435a09b9343e49b12e8dd8838a6e579a9aaa4 | MIT, 2026 the DEsk authors; package release4 preserves original license/visual assets, raises the 2D width cap, changes Games label to s, adds opt-in windows over the open library, and skips the room GPU probe when the compositor already detected CPU rendering; patches and SHA-256 are in packaging/9b7-desk |
 | arch-slider-and-glow | User-supplied plymouth theme.zip; hashes in docs/DESK-INTEGRATION.md | MIT, 2026 Hasan Agit Ünal; original PNGs retained; downstream theme configuration enables background scaling |
 | Omarchy inspiration | https://github.com/basecamp/omarchy | MIT; no claim of affiliation or copied installer |
 | Qt / PySide6 | https://www.qt.io/qt-for-python | LGPL/GPL/commercial options; dynamically linked distribution |

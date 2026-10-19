@@ -54,3 +54,10 @@ bis-service erpnext logs
 `iso/virtualbox/` هو profile مستقل بقائمة حزم صريحة، و`scripts/prepare-virtualbox-profile.sh` يدمج الثيمين وتكوينات الخدمات فقط من الملفات المشتركة. `scripts/build-iso.sh virtualbox` هو الأمر الافتراضي الآن. متغيرا `NINEB7_WORK_DIR` و`NINEB7_OUTPUT_DIR` يسمحان بالبناء خارج القرص الممتلئ دون حذف أي ISO قديم. البناء يحتاج Arch builder مخصصًا ومرجع Git نظيفًا.
 
 راجع `docs/HANDOFF.md` قبل استكمال العمل، وسجّل أي اختبار لم يُنفّذ. لا تعد بناء Full قبل موافقة المستخدم.
+
+## صور اختبارات19أكتوبر2026
+
+![شاشة SDDM من أول ISO دون قائمة جلسات](images/virtualbox-20261019/single-session-sddm.png)
+![برنامجان فوق كتاب التطبيقات في جلسة DEsk متداخلة](images/virtualbox-20261019/library-two-apps.png)
+
+الصورة الأولى من QEMU، والثانية من جلسة فعلية عبر Xvfb لاختبار الإدخال وترتيب النوافذ. لا تمثلان اختبار VirtualBox أو اعتماد أداء3D. نتائج إعادة بناء الصورة بعد إصلاح مسار الرسم البرمجي تُسجّل في HANDOFF.

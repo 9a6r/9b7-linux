@@ -1,0 +1,12 @@
+--- a/src/wm.c
++++ b/src/wm.c
+@@ -22450,6 +22450,9 @@
+ 	 * level the files had (unless the user chose one), and said so */
+ 	render_check(&server);
+ 	if (server.on_cpu) {
++		/* Do not compile/probe a software GL room renderer after the screen
++		 * already selected CPU rendering. Hardware rendering is unchanged. */
++		setenv("DESK_NO_GPU", "1", 0);
+ 		desk_set_gfx(gfx_wanted(&server));
+ 		motion_set(motion_of(&server.conf));
+ 		server.boot_lamp = server.conf.lights_at_login && desk_gfx_level() != DESK_GFX_2D;
