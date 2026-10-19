@@ -8,7 +8,7 @@ Column {
     id: inputContainer
     Layout.fillWidth: true
 
-    property Item exposeSession: sessionSelect.exposeSession
+    property Item exposeSession: sessionSelect.visible ? sessionSelect.exposeSession : loginButton
     property bool failed
 
     Item {
@@ -529,12 +529,13 @@ Column {
             onClicked: config.AllowBadUsernames == "false" ? sddm.login(username.text.toLowerCase(), password.text, sessionSelect.selectedSession) : sddm.login(username.text, password.text, sessionSelect.selectedSession)
             Keys.onReturnPressed: clicked()
             Keys.onEnterPressed: clicked()
-            KeyNavigation.down: sessionSelect.exposeSession
+            KeyNavigation.down: sessionSelect.visible ? sessionSelect.exposeSession : null
         }
     }
 
     SessionButton {
         id: sessionSelect
+        visible: exposeSession.count > 1
         textConstantSession: textConstants.session
         loginButtonWidth: loginButton.background.width
     }

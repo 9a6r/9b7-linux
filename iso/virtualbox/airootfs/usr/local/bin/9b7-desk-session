@@ -1,0 +1,35 @@
+#!/usr/bin/env bash
+set -euo pipefail
+export XDG_CURRENT_DESKTOP=DEsk
+export DESK_LIBRARY_WORKSPACE=1
+# Preserve acceleration and DEsk's own quality selection. Some VirtualBox
+# drivers fail before the first frame; retry only that startup in software.
+state="${XDG_STATE_HOME:-$HOME/.local/state}/desk"
+mkdir -p "$state"
+log="$state/session.log"
+[[ ! -f $log ]] || mv -f "$log" "$state/session.log.old"
+export DESK_LOG=-
+desk-session "$@" > "$log" 2>&1 &
+session_pid=$!
+trap 'kill -TERM "$session_pid" 2>/dev/null || true; wait "$session_pid" || true; exit 143' TERM HUP
+ready=false
+for ((attempt=0; attempt<30; attempt++)); do
+    if grep -Fq 'the first frame' "$log"; then ready=true; break; fi
+    kill -0 "$session_pid" 2>/dev/null || break
+    sleep 1
+done
+if ! $ready && kill -0 "$session_pid" 2>/dev/null; then
+    kill -TERM "$session_pid" 2>/dev/null || true
+    wait "$session_pid" || true
+    status=124
+else
+    status=0
+    wait "$session_pid" || status=$?
+fi
+trap - TERM HUP
+if (( status == 0 )) || $ready; then exit "$status"; fi
+mv -f "$log" "$state/renderer-startup-failed.log"
+printf 'Renderer startup failed (%s); retrying DEsk using software rendering.\n' "$status" > "$log"
+export WLR_RENDERER=pixman DESK_NO_GPU=1 DESK_ON_CPU=1
+exec desk-session "$@" >> "$log" 2>&1
+

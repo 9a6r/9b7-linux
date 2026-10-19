@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=9b7 Linux
+Comment=DEsk for the VirtualBox preview
+Exec=/usr/local/bin/9b7-desk-session
+TryExec=/usr/bin/desk
+Type=Application
+DesktopNames=DEsk
+

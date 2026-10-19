@@ -50,7 +50,7 @@ class Monitor:
         self.stream.close(); self.socket.close()
 
 
-def exercise_session(monitor, guest, output, kvm, mode, acceleration):
+def exercise_session(monitor, guest, output, kvm, mode, acceleration, edition):
     monitor.screen(output / 'sddm.png')
     print('Trying the Live TTY to enable test-only SSH', flush=True)
     # Enable SSH on this disposable Live guest via its real login TTY.
@@ -71,6 +71,21 @@ def exercise_session(monitor, guest, output, kvm, mode, acceleration):
     result = guest('cat /etc/sddm.conf.d/9b7.conf 2>/dev/null; grep -R "^Current=" /etc/sddm.conf.d; uname -r\n')
     (output / 'system.txt').write_text(result.stdout + result.stderr)
     if 'Slot-SDDM-6' not in result.stdout: raise RuntimeError('Original SDDM theme is not selected')
+    if edition == 'virtualbox':
+        result = guest('''set -e
+test "$(cat /etc/9b7-edition)" = virtualbox
+test "$(find /usr/share/9b7/sessions -name '*.desktop' | wc -l)" -eq 1
+test -z "$(find /usr/share/xsessions /usr/share/wayland-sessions -name '*.desktop' 2>/dev/null)"
+test ! -e /opt/9b7/nineb7
+test ! -e /usr/local/bin/9b7-studio
+! pacman -Qq | grep -E '^(hyprland|xfce4-session|xfwm4|lightdm)$'
+pacman -Q 9b7-desk firefox thunar docker vscodium-bin dbeaver obsidian-bin wireshark-qt burpsuite ansible btop
+test -f /usr/share/bis-services/erpnext.compose.yml
+systemd-analyze time
+systemd-analyze critical-chain graphical.target
+''')
+        (output / 'virtualbox-profile.txt').write_text(result.stdout + result.stderr)
+        if result.returncode: raise RuntimeError('VirtualBox profile checks failed')
     print('SDDM active; trying password login into DEsk', flush=True)
     result = guest('''for session in $(loginctl list-sessions --no-legend | awk '{print $1}'); do
     if [ "$(loginctl show-session "$session" -p Class --value)" = greeter ]; then
@@ -92,7 +107,7 @@ done
         time.sleep(5)
     else: raise RuntimeError('Password login did not start DEsk')
     print('DEsk started; launching desktop applications', flush=True)
-    result = guest('''set -e
+    launch = '''set -e
 export XDG_RUNTIME_DIR=/run/user/1000
 export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus
 export XDG_CURRENT_DESKTOP=DEsk
@@ -109,32 +124,36 @@ for attempt in $(seq 1 60); do
 done
 test -n "${WAYLAND_DISPLAY:-}" && test -S "$XDG_RUNTIME_DIR/$WAYLAND_DISPLAY"
 export XDG_STATE_HOME=/tmp/9b7-smoke-state
-nohup 9b7-studio >/tmp/9b7-studio-smoke.log 2>&1 </dev/null &
+STUDIO_LAUNCH
 nohup thunar >/tmp/9b7-thunar-smoke.log 2>&1 </dev/null &
 printf '<!doctype html><meta charset="UTF-8"><h1>9b7 / العربية</h1>' > /tmp/9b7-browser-test.html
 nohup firefox --new-window file:///tmp/9b7-browser-test.html >/tmp/9b7-firefox-smoke.log 2>&1 </dev/null &
-''', timeout=150)
+'''
+    launch = launch.replace('STUDIO_LAUNCH', 'nohup 9b7-studio >/tmp/9b7-studio-smoke.log 2>&1 </dev/null &' if edition == 'desktop' else '')
+    result = guest(launch, timeout=150)
     if result.returncode: raise RuntimeError(result.stderr)
     time.sleep(45 if kvm else 90)
-    result = guest('''set -e
-pgrep -u 1000 -f 'python -m nineb7.studio'
+    checks = '''set -e
+STUDIO_CHECK
 pgrep -u 1000 -x Thunar || pgrep -u 1000 -x thunar
 pgrep -u 1000 -x firefox
-cat /tmp/9b7-studio-smoke.log
 tail -60 ~/.local/state/desk/session.log
 grep -F 'a window comes onto the desk:' ~/.local/state/desk/session.log | tail -20
-''')
+'''
+    checks = checks.replace('STUDIO_CHECK', "pgrep -u 1000 -f 'python -m nineb7.studio'; cat /tmp/9b7-studio-smoke.log" if edition == 'desktop' else '')
+    result = guest(checks)
     (output / 'desktop.txt').write_text(result.stdout + result.stderr)
     if result.returncode or 'Traceback (most recent call last)' in result.stdout:
         raise RuntimeError('Desktop application startup failed; inspect evidence')
     windows = [line for line in result.stdout.splitlines() if 'a window comes onto the desk:' in line]
-    for app_id in ('9b7-studio', 'thunar', 'firefox'):
+    for app_id in (('9b7-studio', 'thunar', 'firefox') if edition == 'desktop' else ('thunar', 'firefox')):
         if not any(f'({app_id})' in line for line in windows):
             raise RuntimeError('DEsk did not report a window for ' + app_id)
     monitor.screen(output / 'desktop.png')
     evidence = {'mode':mode, 'acceleration':acceleration, 'memory_mib':4096,
                 'sddm_password_login':True, 'desk_session':True,
-                'application_processes':['Firefox','Thunar','9b7 Studio'],
+                'edition':edition,
+                'application_processes':['Firefox','Thunar'] + (['9b7 Studio'] if edition == 'desktop' else []),
                 'application_windows_reported_by_compositor':True,
                 'screenshots':'captured; review visually',
                 'not_tested':['VirtualBox','hardware','installation','audio output','cloud AI authentication']}
@@ -146,6 +165,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--iso', required=True, type=Path)
     parser.add_argument('--mode', choices=['bios', 'uefi'], required=True)
+    parser.add_argument('--edition', choices=['desktop', 'virtualbox'], default='desktop')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--port', type=int, default=2235)
     args = parser.parse_args()
@@ -193,7 +213,7 @@ def main():
                 for frame in range(boot_seconds // 5):
                     monitor.screen(output / f'boot-{frame:03}.png')
                     time.sleep(5)
-                exercise_session(monitor, guest, output, kvm, args.mode, acceleration)
+                exercise_session(monitor, guest, output, kvm, args.mode, acceleration, args.edition)
             except Exception as error:
                 (output / 'failure.json').write_text(json.dumps({'mode':args.mode, 'error':str(error)}, indent=2) + '\n')
                 if monitor:

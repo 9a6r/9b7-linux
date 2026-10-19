@@ -2,8 +2,11 @@
 # Creates a disposable profile; never edits the system releng profile.
 set -euo pipefail
 project=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-profile=${1:?Usage: prepare-profile.sh NEW_PROFILE_DIRECTORY [desktop|full]}
-edition=${2:-full}
+profile=${1:?Usage: prepare-profile.sh NEW_PROFILE_DIRECTORY [virtualbox|desktop|full]}
+edition=${2:-virtualbox}
+if [[ $edition == virtualbox ]]; then
+    exec bash "$project/scripts/prepare-virtualbox-profile.sh" "$profile"
+fi
 [[ $edition == full || $edition == desktop ]] || { echo 'Unknown edition' >&2; exit 2; }
 [[ ! -e $profile ]] || { echo "Profile already exists: $profile (use a new directory)" >&2; exit 2; }
 releng=${ARCHISO_RELENG:-/usr/share/archiso/configs/releng}

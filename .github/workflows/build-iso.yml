@@ -1,4 +1,4 @@
-name: Build ISO
+name: Legacy Desktop or Full build - deferred
 on:
   workflow_dispatch:
     inputs:

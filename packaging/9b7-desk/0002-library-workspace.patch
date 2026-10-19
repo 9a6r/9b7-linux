@@ -1,0 +1,191 @@
+--- a/src/wm.c
++++ b/src/wm.c
+@@ -569,6 +569,7 @@
+ 	 * cover it */
+ 	struct wlr_scene_tree *layer_drawer;
+ 	struct shell_conf conf;
++	bool library_workspace, library_window_focus; /* 9b7: apps over the library */
+ 	/* what is sounding: the drawer's slide, the sheet of the binder and the
+ 	 * letter that last went over, the knob's last detent, and the newest
+ 	 * letter heard arriving */
+@@ -3664,6 +3665,12 @@
+ 	if (idx >= 0 && idx < si->count) {
+ 		const struct desk_app *app = &l->apps[si->first + idx];
+ 		wlr_log(WLR_INFO, "taking %s off the %s binder", app->id, si->label_en);
++		if (server->library_workspace) {
++			/* Leave this book, page and search open; the window is put over it. */
++			desk_app_launch(app);
++			desk_apps_release(l);
++			return;
++		}
+ 
+ 		double cx, cy, sw, sh, a;
+ 		desk_binder_sheet_pose(server->desk_w, server->desk_h,
+@@ -4001,6 +4008,16 @@
+ 
+ /* in and out, with binder_open and binder_close */
+ 
++static void book_resume(struct desk_server *server)
++{
++	static const struct desk_ime_typing hooks = { book_ime_commit, book_ime_preedit,
++		book_ime_lookup, book_ime_key, NULL };
++	struct desk_ime_typing h = hooks;
++	h.user = server;
++	server->book_ime = desk_ime_typing_begin(&h);
++	book_tell_cursor(server);
++}
++
+ static void book_begin(struct desk_server *server)
+ {
+ 	server->book_q[0] = '\0';
+@@ -4009,12 +4026,7 @@
+ 	server->book_sel = -1;
+ 	server->book_tab = -1;
+ 	memset(server->book_cursor, 0, sizeof server->book_cursor);
+-	static const struct desk_ime_typing hooks = { book_ime_commit, book_ime_preedit,
+-		book_ime_lookup, book_ime_key, NULL };
+-	struct desk_ime_typing h = hooks;
+-	h.user = server;
+-	server->book_ime = desk_ime_typing_begin(&h);
+-	book_tell_cursor(server);
++	book_resume(server);
+ }
+ 
+ static void book_end(struct desk_server *server)
+@@ -4034,7 +4046,8 @@
+ static bool book_has_keys(const struct desk_server *server)
+ {
+ 	return shelf_up(server) && server->shelf_binder == DESK_SHELF_BOOK
+-		&& server->binder_to > 0.5;
++		&& server->binder_to > 0.5
++		&& !(server->library_workspace && server->library_window_focus);
+ }
+ 
+ static void book_key(struct desk_server *server, struct xkb_state *xkb, uint32_t keycode,
+@@ -4072,6 +4085,12 @@
+ 	if (idx[i] < l->n) {
+ 		const struct desk_app *app = &l->apps[idx[i]];
+ 		wlr_log(WLR_INFO, "taking %s out of the book", app->id);
++		if (server->library_workspace) {
++			/* Leave this book, page and search open; the window is put over it. */
++			desk_app_launch(app);
++			desk_apps_release(l);
++			return;
++		}
+ 		struct desk_book_look lk;
+ 		book_look(server, &lk);
+ 		double cx, cy, ew, eh, a;
+@@ -7330,6 +7349,11 @@
+ 	}
+ 	server->shelf_dur = 0.80 * span;
+ 	server->shelf_moving = 1;
++	if (server->library_workspace) {
++		server->library_window_focus = false;
++		/* Restore the library's original place, below console/post/lock. */
++		wlr_scene_node_place_below(&server->layer_shelf->node, &server->layer_console->node);
++	}
+ 	/* You shut the drawer before you sit up. The film is traced with it
+ 	 * shut, so this is also what makes the first frame match the desk. */
+ 	if (server->shelf_to > 0.5 && server->drawer_t > 0.004) {
+@@ -11870,6 +11894,14 @@
+ 	if (!surface || !toplevel->scene_tree) {
+ 		return;
+ 	}
++	if (server->library_workspace && shelf_up(server)) {
++		/* Keep the library visible behind the normal window layers. */
++		wlr_scene_node_place_below(&server->layer_shelf->node, &server->layer_win->node);
++		server->library_window_focus = true;
++		if (server->shelf_binder == DESK_SHELF_BOOK) {
++			book_end(server);
++		}
++	}
+ 	/* to the front first: a click on the one that has the keys already
+ 	 * still brings it up over what was put down on it */
+ 	wlr_scene_node_raise_to_top(&toplevel->scene_tree->node);
+@@ -11910,6 +11942,12 @@
+ 		}
+ 	}
+ 	wlr_seat_keyboard_notify_clear_focus(server->seat);
++	if (server->library_workspace && shelf_up(server)) {
++		server->library_window_focus = false;
++		if (server->shelf_binder == DESK_SHELF_BOOK) {
++			book_resume(server);
++		}
++	}
+ }
+ 
+ /* The frame's buffer reaches this far past the paper: only far enough
+@@ -16059,7 +16097,7 @@
+ 			return true;
+ 		}
+ 	}
+-	if (shelf_up(server)) {
++	if (shelf_up(server) && !(server->library_workspace && server->library_window_focus)) {
+ 		if (sym == XKB_KEY_Escape) {
+ 			/* the binder goes back on the shelf before you sit down */
+ 			if (server->shelf_binder >= 0) {
+@@ -19641,6 +19679,10 @@
+ 		}
+ 		return;
+ 	}
++	if (server->library_workspace && shelf_up(server) && window_under(server)) {
++		pointer_over_paper(server, time);
++		return;
++	}
+ 	if (shelf_up(server)) {
+ 		if (server->shelf_t < 0.9995) {
+ 			return;
+@@ -19917,6 +19959,21 @@
+ 		return;
+ 	}
+ 
++	if (server->library_workspace && shelf_up(server)) {
++		if (window_under(server)) {
++			paper_press(server, event);
++			return;
++		}
++		/* Clicking the visible library brings its page back above the apps. */
++		if (server->library_window_focus) {
++			server->library_window_focus = false;
++			wlr_scene_node_place_below(&server->layer_shelf->node, &server->layer_console->node);
++			wlr_seat_keyboard_notify_clear_focus(server->seat);
++			if (server->shelf_binder == DESK_SHELF_BOOK) {
++				book_resume(server);
++			}
++		}
++	}
+ 	/* While you are looking up at the bookcase, the desk is not in reach. */
+ 	if (shelf_up(server)) {
+ 		if (memo_up(server)) {
+@@ -20226,6 +20283,11 @@
+ 		server_schedule_frames(server);
+ 		return;
+ 	}
++	if (server->library_workspace && shelf_up(server) && window_under(server)) {
++		wlr_seat_pointer_notify_axis(server->seat, event->time_msec, event->orientation, event->delta,
++			event->delta_discrete, event->source, event->relative_direction);
++		return;
++	}
+ 	if (shelf_up(server) && memo_up(server)) {
+ 		/* a sheet a notch */
+ 		if (event->orientation == WL_POINTER_AXIS_VERTICAL_SCROLL) {
+@@ -22263,6 +22325,8 @@
+ 		return 0;
+ 	}
+ 	struct desk_server server = {0};
++	server.library_workspace = getenv("DESK_LIBRARY_WORKSPACE")
++		&& !strcmp(getenv("DESK_LIBRARY_WORKSPACE"), "1");
+ 	/* the desktop we may be nested in, before Xwayland puts its own
+ 	 * display in the environment for the programs we start */
+ 	if (getenv("DISPLAY") && *getenv("DISPLAY")) {
+--- a/src/apps.c
++++ b/src/apps.c
+@@ -1163,7 +1163,7 @@
+ 	{ "Office",      "Office",      "文書",           0.404, 0.286, 0.152, 0, 0 },
+ 	{ "Graphics",    "Graphics",    "画像",           0.368, 0.196, 0.244, 0, 0 },
+ 	{ "Media",       "Media",       "音と映像",       0.298, 0.196, 0.330, 0, 0 },
+-	{ "Games",       "Games",       "遊び",           0.462, 0.330, 0.132, 0, 0 },
++	{ "Games",       "s",           "s",           0.462, 0.330, 0.132, 0, 0 },
+ 	{ "Utilities",   "Utilities",   "道具",           0.296, 0.296, 0.290, 0, 0 },
+ 	{ "System",      "System",      "システム",       0.176, 0.176, 0.186, 0, 0 },
+ };

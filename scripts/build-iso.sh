@@ -1,25 +1,26 @@
 #!/usr/bin/env bash
 set -euo pipefail
 project=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
-edition=${1:-full}
-[[ $edition == desktop || $edition == full ]] || { echo 'Usage: build-iso.sh [full|desktop]' >&2; exit 2; }
+edition=${1:-virtualbox}
+[[ $edition == desktop || $edition == full || $edition == virtualbox ]] || { echo 'Usage: build-iso.sh [virtualbox|desktop|full]' >&2; exit 2; }
 [[ $EUID == 0 && -f /etc/arch-release ]] || { echo 'Use an Arch Linux root builder; see docs/BUILD.ar.md' >&2; exit 1; }
 [[ $(uname -m) == x86_64 ]] || { echo 'Only x86_64 is supported' >&2; exit 1; }
 for command in mkarchiso rsvg-convert mksquashfs git; do command -v "$command" >/dev/null; done
 workspace=${NINEB7_WORK_DIR:-$project/work}
-mkdir -p "$workspace" "$project/out"
+output=${NINEB7_OUTPUT_DIR:-$project/out}
+mkdir -p "$workspace" "$output"
 available=$(df --output=avail -k "$workspace" | tail -1)
 required=18000000
-[[ $edition == desktop ]] || required=55000000
+[[ $edition != full ]] || required=55000000
 if [[ ${NINEB7_BIND_OFFLINE:-0} == 1 && $edition == full ]]; then
     # Separate RAM-backed workspace: one root plus its compressed SquashFS.
     # Archives stay on the output filesystem and are mounted into the profile.
-    [[ $(stat -c %d "$workspace") != "$(stat -c %d "$project/out")" ]] || {
+    [[ $(stat -c %d "$workspace") != "$(stat -c %d "$output")" ]] || {
         echo 'Compact full build needs separate work and output filesystems' >&2; exit 1;
     }
     bundle_kib=$(du -sk "$project/cache/offline" | cut -f1)
     required=$((bundle_kib * 2 + 13000000))
-    output_free=$(df --output=avail -k "$project/out" | tail -1)
+    output_free=$(df --output=avail -k "$output" | tail -1)
     (( output_free >= bundle_kib + 5000000 )) || { echo 'Output filesystem needs bundle size plus 5GB free' >&2; exit 1; }
 fi
 (( available >= required )) || { echo "Insufficient build space: need at least $required KiB free for $edition" >&2; exit 1; }
@@ -29,7 +30,7 @@ if [[ -n $source_status ]]; then
     exit 1
 fi
 build=$(mktemp -d "$workspace/iso-$edition.XXXXXX")
-iso_output=$(mktemp -d "$project/out/.build-$edition.XXXXXX")
+iso_output=$(mktemp -d "$output/.build-$edition.XXXXXX")
 cleanup() {
     if mountpoint -q "$build/profile/airootfs/opt/9b7/offline"; then
         umount "$build/profile/airootfs/opt/9b7/offline"
@@ -72,12 +73,12 @@ if ! mkarchiso -v -w "$build/work" -o "$iso_output" "$build/profile"; then
 fi
 mapfile -t images < <(find "$iso_output" -maxdepth 1 -name '9b7-linux-*.iso' -type f)
 (( ${#images[@]} == 1 )) && [[ -s ${images[0]} ]]
-image="$project/out/$(basename "${images[0]}" .iso)-$edition.iso"
+image="$output/$(basename "${images[0]}" .iso)-$edition.iso"
 [[ ! -e $image ]] || { echo "Preserving existing ISO: $image. New output: ${images[0]}" >&2; exit 1; }
 mv -n "${images[0]}" "$image"
 rmdir "$iso_output"
-(cd "$project/out" && sha256sum "$(basename "$image")" > "$(basename "$image").sha256")
-cp "$build/work/x86_64/airootfs/opt/9b7/SOURCE-COMMIT" "$project/out/SOURCE-COMMIT"
+(cd "$output" && sha256sum "$(basename "$image")" > "$(basename "$image").sha256")
+cp "$build/work/x86_64/airootfs/opt/9b7/SOURCE-COMMIT" "$output/SOURCE-COMMIT"
 cp "$build/work/x86_64/airootfs/opt/9b7/SOURCE-COMMIT" "$image.source-commit"
 pacman --root "$build/work/x86_64/airootfs" -Q > "$image.packages.txt"
 echo "Built $image — boot verification is still required before release."

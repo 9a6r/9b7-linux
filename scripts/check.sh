@@ -4,9 +4,9 @@ cd "$(dirname "${BASH_SOURCE[0]}")/.."
 python3 -m unittest discover -s tests -v
 while IFS= read -r -d '' script; do
     bash -n "$script"
-done < <(find scripts iso/airootfs/usr/local/bin -type f \( -name '*.sh' -o -name '9b7-*' \) -print0)
+done < <(find scripts iso/airootfs/usr/local/bin iso/virtualbox/airootfs/usr/local/bin -type f \( -name '*.sh' -o -path '*/usr/local/bin/*' \) -print0)
 if command -v shellcheck >/dev/null; then
-    find scripts iso/airootfs/usr/local/bin -type f \( -name '*.sh' -o -name '9b7-*' \) -print0 |
+    find scripts iso/airootfs/usr/local/bin iso/virtualbox/airootfs/usr/local/bin -type f \( -name '*.sh' -o -path '*/usr/local/bin/*' \) -print0 |
         xargs -0 shellcheck --severity=warning
 fi
 if docker compose version >/dev/null 2>&1; then

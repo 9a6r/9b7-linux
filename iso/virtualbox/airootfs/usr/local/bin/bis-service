@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+# Desktop integration for the upstream applications, not a 9b7 GUI.
+set -euo pipefail
+stack=${1:?Usage: bis-service STACK [start|stop|status|logs]}
+operation=${2:-start}
+case "$stack" in
+    n8n) port=5678; check=/healthz ;;
+    superset) port=8088; check=/health ;;
+    metabase) port=3000; check=/api/health ;;
+    odoo) port=8069; check=/web/login ;;
+    erpnext) port=8080; check=/api/method/ping ;;
+    ai) port=11434; check=/api/tags ;;
+    databases) port=; check= ;;
+    *) echo 'Unknown service' >&2; exit 2 ;;
+esac
+case "$operation" in start|stop|status|logs) ;; *) echo 'Unknown operation' >&2; exit 2 ;; esac
+if [[ $operation == start ]]; then
+    sudo systemctl start docker
+fi
+store=$(docker info --format '{{.DockerRootDir}}')
+if [[ $operation == start && -d /run/archiso/bootmnt ]] &&
+    [[ $(findmnt -nro FSTYPE -T "$store") != ext4 ]]; then
+    echo 'Live containers need persistent storage, not the RAM overlay.' >&2
+    echo 'Mount an ext4 data disk, then run: sudo live-docker-storage /path/to/mount' >&2
+    echo 'This command does not format or partition disks.' >&2
+    exit 1
+fi
+state="${XDG_STATE_HOME:-$HOME/.local/state}/bis-services"
+# live-docker-storage prepares this user-owned directory next to Docker data.
+if [[ -d ${store%/*}/.bis-services && -O ${store%/*}/.bis-services ]]; then
+    state="${store%/*}/.bis-services"
+fi
+umask 077
+mkdir -p "$state"
+exec 9> "$state/$stack.lock"
+flock 9
+# Serialize credential creation across different stacks, too.
+(
+    flock 8
+    if [[ ! -s $state/.env ]]; then
+        env_temp=$(mktemp "$state/.env.XXXXXX")
+        for key in POSTGRES_PASSWORD N8N_ENCRYPTION_KEY SUPERSET_SECRET_KEY DB_ROOT_PASSWORD; do
+            printf '%s=%s\n' "$key" "$(openssl rand -hex 32)"
+        done > "$env_temp"
+        printf 'LAB_ADMIN_USER=9b7\nLAB_ADMIN_PASSWORD=9b7\n' >> "$env_temp"
+        mv "$env_temp" "$state/.env"
+    fi
+) 8> "$state/credentials.lock"
+config=/usr/share/bis-services/compose.yml
+[[ $stack != erpnext ]] || config=/usr/share/bis-services/erpnext.compose.yml
+compose=(docker compose --env-file "$state/.env" --project-name "9b7-$stack" -f "$config" --profile "$stack")
+case "$operation" in
+    start)
+        echo "Starting $stack; the first launch downloads its container images."
+        "${compose[@]}" up -d --wait --wait-timeout 600
+        if [[ -n $port ]]; then
+            ready=false
+            for ((attempt=0; attempt<200; attempt++)); do
+                if curl --noproxy '*' --fail --silent --max-time 3 "http://127.0.0.1:$port$check" >/dev/null; then
+                    ready=true; break
+                fi
+                sleep 3
+            done
+            $ready || { echo "Readiness failed; run: bis-service $stack logs" >&2; exit 1; }
+            [[ $stack == ai ]] || xdg-open "http://127.0.0.1:$port/"
+        fi
+        echo "Ready. Stop with: bis-service $stack stop"
+        ;;
+    stop) "${compose[@]}" down ;; # Preserve named data volumes.
+    status) "${compose[@]}" ps -a ;;
+    logs) "${compose[@]}" logs --tail 100 ;;
+esac
