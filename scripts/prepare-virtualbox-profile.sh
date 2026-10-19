@@ -11,6 +11,7 @@ root="$profile/airootfs"
 # Use the lean package allowlist, not releng's recovery/installer/firmware set.
 sed '/^[[:space:]]*#/d; /^[[:space:]]*$/d' "$project/iso/virtualbox/packages.x86_64" > "$profile/packages.x86_64"
 cp -a "$project/iso/virtualbox/airootfs/." "$root/"
+install -Dm755 "$project/scripts/bake-desk-cache.sh" "$root/usr/local/libexec/desk-precache"
 # Retain the external tools and their pinned service configurations, without
 # copying nineb7/, custom GUI entry points, the installer or their autostarts.
 mkdir -p "$root/usr/share/bis-services" "$root/usr/share/applications"
@@ -87,6 +88,7 @@ find /usr/share/wayland-sessions /usr/share/xsessions -maxdepth 1 -name '*.deskt
 # These update-time tasks are already finished in the immutable Live image.
 # Keep the normal units: a later real package update still triggers them.
 ldconfig
+/usr/local/libexec/desk-precache
 /usr/lib/systemd/systemd-update-done
 ACCOUNT
 chmod 755 "$root/usr/local/bin/9b7-prepare-live-account" "$root/usr/local/bin/9b7-desk-session"
